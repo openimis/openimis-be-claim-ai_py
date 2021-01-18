@@ -10,10 +10,10 @@ class ClaimBundleEvaluation:
         for next_claim in entries:
             evaluation_result.append(cls._evaluate(next_claim))
 
-        return cls._build_resposne_bundle(evaluation_result)
+        return cls._build_response_bundle(evaluation_result)
 
     @classmethod
-    def _build_resposne_bundle(cls, evaluation_resutl):
+    def _build_response_bundle(cls, evaluation_resutl):
         # TODO: Add real build here
         return adjudication_bundle
 
