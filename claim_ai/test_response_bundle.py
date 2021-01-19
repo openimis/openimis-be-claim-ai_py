@@ -3,8 +3,21 @@ adjudication_bundle = {
     'entry': [
         {
                 "resourceType": "ClaimResponse",
+                "status": "Not Selected",
+                "type": {
+                        "text": "O"
+                },
+                "patient": {
+                    "reference": "105000002/CB8497C2-44E6-4E55-97B5-A88B6C3DEDB3"
+                },
                 "created": "2020-11-15",
+                "insurer": {
+                    "reference": "Organization/openIMIS-Claim-AI"
+                },
                 "id": "C670E61A-36F1-4F70-A5D2-6CE2C20457F6",
+                "request": {
+                    "reference": "Claim/C670E61A-36F1-4F70-A5D2-6CE2C20457F6"
+                },
                 "item": [
                     {
                         "adjudication": [
@@ -24,7 +37,7 @@ adjudication_bundle = {
                                 "reason": {
                                     "coding": [
                                         {
-                                            "code": 1
+                                            "code": 0
                                         }
                                     ],
                                     "text": "accepted"
@@ -63,7 +76,7 @@ adjudication_bundle = {
                                 "reason": {
                                     "coding": [
                                         {
-                                            "code": 0
+                                            "code": 1
                                         }
                                     ],
                                     "text": "rejected"
@@ -71,6 +84,10 @@ adjudication_bundle = {
                                 "value": 1.0
                             }
                         ],
+                        "outcome": "complete",
+                        "patient": {
+                            "reference": "Patient/80DB8910-8D30-4072-B92D-D3F8E74BB17A"
+                        },
                         "extension": [
                             {
                                 "url": "ActivityDefinition",
