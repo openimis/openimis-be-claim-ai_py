@@ -30,9 +30,10 @@ class ClaimConsumer(AsyncConsumer):
         if payload['type'] == 'claim.bundle.payload':
             index = self._assign_event_index(payload)
             await self._bundle_evaluation(payload['content'], index)
+            print(F"Payload with id {index} evaluated")
         elif payload['type'] == 'claim.bundle.acceptance':
             # TODO: confirm evaluation receive and remove it from query
-            print("Payload received")
+            print("Evaluated payload accepted")
             pass
 
     def _get_content(self, event):
@@ -45,7 +46,9 @@ class ClaimConsumer(AsyncConsumer):
             bundle = json.loads(bytes_data.decode("utf-8"))
             return bundle
 
-    def _assign_event_index(self, event):
+    def _assign_event_index(self, payload):
+        if payload.get('bundle_id', None):
+            return payload['bundle_id']
         event_index = len(self.bundle_query.keys())
         self.bundle_query[event_index] = event
         return event_index
