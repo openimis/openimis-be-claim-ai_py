@@ -1,22 +1,14 @@
-import inspect
 import json
 import logging
 import zlib
-import time
-import asyncio
-import threading
 import concurrent.futures
-import functools
-
-from channels.exceptions import StopConsumer
-
-from ..evaluation import ClaimBundleEvaluation
-from channels.generic.websocket import WebsocketConsumer, AsyncConsumer
-
-
 import traceback
 
+from ..evaluation import ClaimBundleEvaluation
+from channels.generic.websocket import AsyncConsumer
+
 logger = logging.getLogger(__name__)
+
 
 class ClaimConsumer(AsyncConsumer):
 
@@ -59,7 +51,7 @@ class ClaimConsumer(AsyncConsumer):
         await self._send_evaluation(content, event_index)
 
     async def _send_acceptance(self, event_index):
-        accept_response = { 'type': 'claim.bundle.acceptance', 'content': 'Accepted', 'index': event_index}
+        accept_response = {'type': 'claim.bundle.acceptance', 'content': 'Accepted', 'index': event_index}
         await self.send({
             'text': json.dumps(accept_response),
             'type': 'websocket.send'
