@@ -19,7 +19,7 @@ class ClaimConverter(AbstractConverter):
     def convert_claim_fields(self, claim, item_id):
         claim_data = input_models.Claim(
             identifier=claim['id'],
-            billable_period=(claim['billablePeriod']['start'], claim['billablePeriod']['end']),
+            billable_period=(claim['billablePeriod']['start'], claim['billablePeriod'].get('end', None)),
             created=claim['created'],
             type=claim['type']['text'],
             item_quantity=self._get_claim_item_quantity(claim, item_id),

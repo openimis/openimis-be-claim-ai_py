@@ -1,5 +1,6 @@
 import inspect
 import json
+import logging
 import zlib
 import time
 import asyncio
@@ -15,6 +16,7 @@ from channels.generic.websocket import WebsocketConsumer, AsyncConsumer
 
 import traceback
 
+logger = logging.getLogger(__name__)
 
 class ClaimConsumer(AsyncConsumer):
 
@@ -50,7 +52,6 @@ class ClaimConsumer(AsyncConsumer):
         if payload.get('bundle_id', None):
             return payload['bundle_id']
         event_index = len(self.bundle_query.keys())
-        self.bundle_query[event_index] = event
         return event_index
 
     async def _bundle_evaluation(self, content, event_index):
@@ -65,9 +66,13 @@ class ClaimConsumer(AsyncConsumer):
         })
 
     async def _send_evaluation(self, bundle, event_index):
-        evaluation_result = ClaimBundleEvaluation.evaluate_bundle(bundle)
-        evaluation_response = {'type': 'claim.bundle.payload', 'content': evaluation_result, 'index': event_index}
+        try:
+            evaluation_result = ClaimBundleEvaluation.evaluate_bundle(bundle)
+            evaluation_response = {'type': 'claim.bundle.payload', 'content': evaluation_result, 'index': event_index}
+        except Exception as e:
+            logger.error("Exception during claim evaluation: {}".format(traceback.print_exc()))
+            evaluation_response = {'type': 'claim.bundle.evaluation_exception', 'content': str(e), 'index': event_index}
         await self.send({
-            'type': 'websocket.send',
-            'text': json.dumps(evaluation_response)
-        })
+                'type': 'websocket.send',
+                'text': json.dumps(evaluation_response)
+            })
