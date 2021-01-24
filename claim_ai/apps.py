@@ -7,7 +7,7 @@ DEFAULT_CONFIG = {
     'claim_response_url': 'http://localhost:8000/claim_ai/ClaimResponse',
     'ai_model_file': "",
     'claim_response_organization': 'openIMIS-Claim-AI',
-    'date_format': '%Y-%m-%d',
+    'date_format': '%Y-%m-%d'
 }
 
 
