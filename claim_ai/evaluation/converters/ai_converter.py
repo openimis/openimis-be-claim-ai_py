@@ -49,7 +49,7 @@ class AiConverter(AbstractConverter):
             "patient": {
                 "reference": claim['patient']['reference']
             },
-            "created": date.today(),
+            "created": date.today().strftime(ClaimAiConfig.date_format),
             "insurer": {
                 "reference": F"Organization/{ClaimAiConfig.claim_response_organization}"
             },

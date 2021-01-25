@@ -13,9 +13,15 @@ class TestAiInputConverter(TestCase):
     def test_conversion(self):
         ai_converter = converter.FHIRConverter()
 
-        generated_input = ai_converter.bundle_ai_input(self.TEST_BUNDLE)
-        self.assertEqual(len(generated_input), self.TEST_HELPER.EXPECTED_NUMBER_OF_ENTRIES)
+        claim_bundle_input_models = ai_converter.bundle_ai_input(self.TEST_BUNDLE)
+        self.assertEqual(len([claim for claim, _ in claim_bundle_input_models]), 1)  # input generated for single claim
 
+        generated_input = []
+        for _, claim_input_models in claim_bundle_input_models:
+            for next_input_model in claim_input_models:
+                generated_input.append(next_input_model.to_representation())
+
+        self.assertEqual(len(generated_input), self.TEST_HELPER.EXPECTED_NUMBER_OF_ENTRIES)
         self.__asert_items(generated_input)
         self.__asert_services(generated_input)
         self.__asert_healthcare_service(generated_input)

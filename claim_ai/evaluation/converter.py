@@ -5,6 +5,7 @@ from claim_ai.evaluation.converters import AiConverter
 from claim_ai.evaluation.evaluation_result import EvaluationResult
 from claim_ai.apps import ClaimAiConfig
 
+
 class FHIRConverter:
     converter = AiConverter()
 
@@ -12,12 +13,12 @@ class FHIRConverter:
         claims = [entry['resource'] for entry in claim_bundle['entry']]
         output = []
         for claim in claims:
-            output.extend(self.claim_ai_input(claim))
+            output.append((claim, self.claim_ai_input(claim)))
         return output
 
     def claim_ai_input(self, fhir_claim_repr):
         input_models = self.converter.to_ai_input(fhir_claim_repr)
-        return [model.to_representation() for model in input_models]
+        return [model for model in input_models]
 
     def bundle_ai_output(self, evaluation_output: List[EvaluationResult]):
         response_bundle = {
