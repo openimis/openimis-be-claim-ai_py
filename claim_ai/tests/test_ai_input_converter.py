@@ -98,10 +98,9 @@ class TestAiInputConverter(TestCase):
         patient_birthDate = patient_frame[1]
         patient_gender = patient_frame[2]
         patient_isHead = patient_frame[3]
-        patient_link = patient_frame[4]
-        patient_povertyStatus = patient_frame[5]
-        patient_locationCode = patient_frame[6]
-        patient_group = patient_frame[7]
+        patient_povertyStatus = patient_frame[4]
+        patient_locationCode = patient_frame[5]
+        patient_group = patient_frame[6]
 
         expected_patient = self.TEST_HELPER.EXPECTED_PATIENT_ENTRY
 
@@ -109,7 +108,6 @@ class TestAiInputConverter(TestCase):
         self.assertEqual(patient_birthDate, expected_patient['birthDate'])
         self.assertEqual(patient_gender, expected_patient['gender'])
         self.assertEqual(patient_isHead, expected_patient['isHead'])
-        self.assertEqual(patient_link, expected_patient['link.type'])
         self.assertEqual(patient_povertyStatus, expected_patient['povertyStatus'])
         self.assertEqual(patient_locationCode, expected_patient['locationCode'])
         self.assertEqual(patient_group, expected_patient['group'])

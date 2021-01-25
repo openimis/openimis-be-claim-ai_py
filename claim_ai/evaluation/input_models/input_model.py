@@ -58,7 +58,6 @@ class Patient(BaseDataFrameModel):
     birth_date = None
     gender = None
     is_head = None
-    link_type = None
     poverty_status = None
     location_code = None
     group = None

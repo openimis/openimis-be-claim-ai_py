@@ -2,25 +2,11 @@ from django.apps import AppConfig
 
 MODULE_NAME = 'claim_ai'
 
-DEFAULT_CATEGORICAL_VARIABLES_MAPPING = {
-    'link_type': {
-        'Brother/Sister': 1,
-        'Father/Mother': 2,
-        'Uncle/Aunt': 3,
-        'Son/Daughter': 4,
-        'Grand parents': 5,
-        'Employee': 6,
-        'Others': 7,
-        'Spouse': 8,
-    }
-}
-
 DEFAULT_CONFIG = {
     'authentication': [],
     'ai_model_file': "",
     'claim_response_organization': 'openIMIS-Claim-AI',
     'date_format': '%Y-%m-%d',
-    **DEFAULT_CATEGORICAL_VARIABLES_MAPPING
 }
 
 
@@ -30,7 +16,6 @@ class ClaimAiConfig(AppConfig):
     authentication = DEFAULT_CONFIG['authentication']
     ai_model_file = DEFAULT_CONFIG['ai_model_file']
     claim_response_organization = DEFAULT_CONFIG['claim_response_organization']
-    link_type_categorical_mapping = DEFAULT_CONFIG['link_type']
     date_format = DEFAULT_CONFIG['date_format']
 
     def _configure_perms(self, cfg):

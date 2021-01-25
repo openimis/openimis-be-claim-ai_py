@@ -75,7 +75,6 @@ class AiConvertionHelper():
         'birthDate': '1993-06-09',
         'gender': 'female',
         'isHead': False,
-        'link.type': 8,  # TODO: What should be this value, for set to now identifier type
         'povertyStatus': False,  # Default for not present in the payload
         'locationCode': '63A90675-1BC9-42C6-967B-4D6EE36D4073',
         'group': None,  # TODO: Require implementing fhir api extension
