@@ -29,11 +29,15 @@ class ProvidedItem(BaseDataFrameModel):
 
 
 class Medication(ProvidedItem):
-    pass
+    def __init__(self, **fields):
+        super().__init__(**fields)
+        self.type = 'Medication'  # fixed
 
 
 class ActivityDefinition(ProvidedItem):
-    pass
+    def __init__(self, **fields):
+        super().__init__(**fields)
+        self.type = 'ActivityDefinition'  # fixed
 
 
 class Claim(BaseDataFrameModel):
@@ -43,7 +47,8 @@ class Claim(BaseDataFrameModel):
     type = None
     item_quantity = None
     item_unit_price = None
-    diagnosis = None
+    diagnosis_0 = None
+    diagnosis_1 = None
     enterer = None
 
 

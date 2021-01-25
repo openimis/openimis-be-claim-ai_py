@@ -34,6 +34,7 @@ class TestAiInputConverter(TestCase):
         item_unit_price = item_data_column[1]
         item_frequency = item_data_column[2]
         item_use_context = item_data_column[3]
+        item_provision_type = item_data_column[4]
 
         expected_number_of_items = self.TEST_HELPER.EXPECTED_NUMBER_OF_ITEM_ENTRIES
         expected_item = self.TEST_HELPER.EXPECTED_ITEM_ENTRY
@@ -42,6 +43,7 @@ class TestAiInputConverter(TestCase):
         self.assertEqual(item_unit_price, expected_item['unitPrice'])
         self.assertEqual(item_frequency, expected_item['frequency'])
         self.assertEqual(item_use_context, expected_item['useContext'])
+        self.assertEqual(item_provision_type, expected_item['type'])
 
     def __asert_services(self, generated_input):
         services = [frame for frame in generated_input if 'ActivityDefinition' in frame.columns]
@@ -53,6 +55,7 @@ class TestAiInputConverter(TestCase):
         service_unit_price = service_data_column[1]
         service_frequency = service_data_column[2]
         service_use_context = service_data_column[3]
+        service_provision_type = service_data_column[4]
 
         expected_number_of_services = self.TEST_HELPER.EXPECTED_NUMBER_OF_SERVICE_ENTRIES
         expected_service = self.TEST_HELPER.EXPECTED_SERVICE_ENTRY
@@ -61,7 +64,7 @@ class TestAiInputConverter(TestCase):
         self.assertEqual(service_unit_price, expected_service['unitPrice'])
         self.assertEqual(service_frequency, expected_service['frequency'])
         self.assertEqual(service_use_context, expected_service['useContext'])
-        self.assertEqual(service_use_context, expected_service['useContext'])
+        self.assertEqual(service_provision_type, expected_service['type'])
 
         service_claim_quantity = claim_data_column[4]
         service_claim_unit_price = claim_data_column[5]
@@ -123,13 +126,15 @@ class TestAiInputConverter(TestCase):
         claim_billablePeriod = claim_frame[1]
         claim_created = claim_frame[2]
         claim_type = claim_frame[3]
-        claim_diagnosis = claim_frame[6]
-        claim_enterer = claim_frame[7]
+        claim_diagnosis_0 = claim_frame[6]
+        claim_diagnosis_1 = claim_frame[7]
+        claim_enterer = claim_frame[8]
 
         expected_claim = self.TEST_HELPER.EXPECTED_NON_MUTABLE_CLAIM_ENTRY_FIELDS
         self.assertEqual(claim_identifier, expected_claim['identifier'])
         self.assertEqual(claim_billablePeriod, expected_claim['billablePeriod'])
         self.assertEqual(claim_created, expected_claim['created'])
         self.assertEqual(claim_type, expected_claim['type'])
-        self.assertEqual(claim_diagnosis, expected_claim['diagnosis.diagnosisReference'])
+        self.assertEqual(claim_diagnosis_0, expected_claim['diagnosis.diagnosisReference_0'])
+        self.assertEqual(claim_diagnosis_1, expected_claim['diagnosis.diagnosisReference_1'])
         self.assertEqual(claim_enterer, expected_claim['enterer'])

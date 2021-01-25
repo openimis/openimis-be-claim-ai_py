@@ -306,6 +306,26 @@ socket_data = {
                                     "value": ""
                                 }
                             ],
+                            "link": [
+                                {
+                                    "other": {
+                                        "identifier": {
+                                            "type": {
+                                                "coding": [
+                                                    {
+                                                        "code": "UUID"
+                                                    }
+                                                ]
+                                            },
+                                            "use": "usual",
+                                            "value": "E428D2A2-3115-4E0E-B4B4-00D536EBC99B"
+                                        },
+                                        "reference": "Patient/E428D2A2-3115-4E0E-B4B4-00D536EBC99B",
+                                        "type": "Patient"
+                                    },
+                                    "type": "Spouse"
+                                }
+                            ],
                             "name": [
                                 {
                                     "family": "Ilina",
@@ -676,10 +696,6 @@ socket_data = {
                                     "valueCodeableConcept": {
                                         "coding": [
                                             {
-                                                "code": "M",
-                                                "display": "Male"
-                                            },
-                                            {
                                                 "code": "F",
                                                 "display": "Female"
                                             }
@@ -696,10 +712,6 @@ socket_data = {
                                             {
                                                 "code": "A",
                                                 "display": "Adult"
-                                            },
-                                            {
-                                                "code": "K",
-                                                "display": "Kid"
                                             }
                                         ],
                                         "text": "Adult or Kid"

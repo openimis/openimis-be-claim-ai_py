@@ -17,6 +17,7 @@ class ClaimConverter(AbstractConverter):
         return claim_inputs_for_items
 
     def convert_claim_fields(self, claim, item_id):
+        diagnosis_0, diagnosis_1 = self._get_diagnosis_reference(claim)
         claim_data = input_models.Claim(
             identifier=claim['id'],
             billable_period=(claim['billablePeriod']['start'], claim['billablePeriod'].get('end', None)),
@@ -24,7 +25,8 @@ class ClaimConverter(AbstractConverter):
             type=claim['type']['text'],
             item_quantity=self._get_claim_item_quantity(claim, item_id),
             item_unit_price=self._get_claim_item_unit_price(claim, item_id),
-            diagnosis=self._get_diagnosis_reference(claim),
+            diagnosis_0=diagnosis_0,
+            diagnosis_1=diagnosis_1,
             enterer=self._get_enterer(claim),
         )
         return claim_data
@@ -43,7 +45,7 @@ class ClaimConverter(AbstractConverter):
             d['diagnosisReference']['identifier'] for d in diagnoses
             if d['type'][0]['coding'][0]['code'] in ['icd_0', 'icd_1']]
 
-        return tuple(references) if len(references) == 2 else (references[0], None)
+        return tuple(references) if len(references) == 2 else (references[0], references[0])
 
     def _get_enterer(self, claim):
         return claim['enterer']['identifier']['value']

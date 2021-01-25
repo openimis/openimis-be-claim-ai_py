@@ -10,7 +10,7 @@ def _fix_len(iterable, expected_len, empty=None):
 
 
 class AiConvertionHelper():
-    LONGEST_ENTRY = 8
+    LONGEST_ENTRY = 9
     TEST_INPUT = socket_data
     EXPECTED_NUMBER_OF_ENTRIES = 2  # One for each claim item
     EXPECTED_NUMBER_OF_ITEM_ENTRIES = 1
@@ -19,14 +19,16 @@ class AiConvertionHelper():
         'identifier': '00B4F099-6122-4327-B033-0872FB1027D8',
         'unitPrice': 10.0,
         'frequency': 0,
-        'useContext': 'O'
+        'useContext': bin(15),  # Kid, adult, male, female
+        'type': 'Medication'
     }
 
     EXPECTED_SERVICE_ENTRY = {
         'identifier': '9FD65C19-6889-46D8-9572-A586D17CF286',
         'unitPrice': 400.0,
         'frequency': 0,
-        'useContext': 'O'  # What should be use context
+        'useContext': bin(6),  # Adult, female
+        'type': 'ActivityDefinition'
     }
 
     EXPECTED_CLAIM_ENTRY_FOR_ITEM = {
@@ -36,7 +38,8 @@ class AiConvertionHelper():
         'type': 'O',
         'item.quantity': 2.0,
         'item.unitPrice': 10.0,
-        'diagnosis.diagnosisReference': (4, None),
+        'diagnosis.diagnosisReference_0': 4,
+        'diagnosis.diagnosisReference_1': 4,
         'enterer': '99B9C21B-E7B9-455E-9A23-560109FBBB55'
     }
 
@@ -47,7 +50,8 @@ class AiConvertionHelper():
         'type': 'O',
         'item.quantity': 1.0,
         'item.unitPrice': 400.0,
-        'diagnosis.diagnosisReference': (4, None),
+        'diagnosis.diagnosisReference_0': 4,
+        'diagnosis.diagnosisReference_1': 4,
         'enterer': '99B9C21B-E7B9-455E-9A23-560109FBBB55'
     }
 
@@ -56,7 +60,8 @@ class AiConvertionHelper():
         'billablePeriod': ('2020-05-03', '2020-05-03'),
         'created': '2020-05-03',
         'type': 'O',
-        'diagnosis.diagnosisReference': (4, None),
+        'diagnosis.diagnosisReference_0': 4,
+        'diagnosis.diagnosisReference_1': 4,
         'enterer': '99B9C21B-E7B9-455E-9A23-560109FBBB55'
     }
 
@@ -65,7 +70,7 @@ class AiConvertionHelper():
         'birthDate': '1993-06-09',
         'gender': 'female',
         'isHead': False,
-        'link.type': 'UUID',  # TODO: What should be this value, for set to now identifier type
+        'link.type': 8,  # TODO: What should be this value, for set to now identifier type
         'povertyStatus': False,  # Default for not present in the payload
         'locationCode': '63A90675-1BC9-42C6-967B-4D6EE36D4073',
         'group': None,  # TODO: Require implementing fhir api extension
