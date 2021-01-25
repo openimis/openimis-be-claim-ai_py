@@ -42,7 +42,8 @@ class ActivityDefinition(ProvidedItem):
 
 class Claim(BaseDataFrameModel):
     identifier = None
-    billable_period = None
+    billable_period_from = None
+    billable_period_to = None
     created = None
     type = None
     item_quantity = None

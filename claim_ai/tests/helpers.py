@@ -1,6 +1,6 @@
 import pandas
 from .test_fhir_bundle import socket_data
-
+from datetime import datetime
 
 def _fix_len(iterable, expected_len, empty=None):
     new_l = list(iterable)
@@ -10,11 +10,13 @@ def _fix_len(iterable, expected_len, empty=None):
 
 
 class AiConvertionHelper():
-    LONGEST_ENTRY = 9
+    LONGEST_ENTRY = 10
     TEST_INPUT = socket_data
     EXPECTED_NUMBER_OF_ENTRIES = 2  # One for each claim item
     EXPECTED_NUMBER_OF_ITEM_ENTRIES = 1
     EXPECTED_NUMBER_OF_SERVICE_ENTRIES = 1
+    DATE_FORMAT = '%Y-%m-%d'
+    
     EXPECTED_ITEM_ENTRY = {
         'identifier': '00B4F099-6122-4327-B033-0872FB1027D8',
         'unitPrice': 10.0,
@@ -33,8 +35,9 @@ class AiConvertionHelper():
 
     EXPECTED_CLAIM_ENTRY_FOR_ITEM = {
         'identifier': 'EA07F16E-1556-4BA6-95AB-38784D058994',
-        'billablePeriod': ('2020-05-03', '2020-05-03'),
-        'created': '2020-05-03',
+        'billablePeriod_from': datetime.strptime('2020-05-03', DATE_FORMAT),
+        'billablePeriod_to': datetime.strptime('2020-05-03', DATE_FORMAT),
+        'created': datetime.strptime('2020-05-03', DATE_FORMAT),
         'type': 'O',
         'item.quantity': 2.0,
         'item.unitPrice': 10.0,
@@ -45,8 +48,9 @@ class AiConvertionHelper():
 
     EXPECTED_CLAIM_ENTRY_FOR_SERVICE = {
         'identifier': 'EA07F16E-1556-4BA6-95AB-38784D058994',
-        'billablePeriod': ('2020-05-03', '2020-05-03'),
-        'created': '2020-05-03',
+        'billablePeriod_from': datetime.strptime('2020-05-03', DATE_FORMAT),
+        'billablePeriod_to': datetime.strptime('2020-05-03', DATE_FORMAT),
+        'created': datetime.strptime('2020-05-03', DATE_FORMAT),
         'type': 'O',
         'item.quantity': 1.0,
         'item.unitPrice': 400.0,
@@ -57,8 +61,9 @@ class AiConvertionHelper():
 
     EXPECTED_NON_MUTABLE_CLAIM_ENTRY_FIELDS = {
         'identifier': 'EA07F16E-1556-4BA6-95AB-38784D058994',
-        'billablePeriod': ('2020-05-03', '2020-05-03'),
-        'created': '2020-05-03',
+        'billablePeriod_from': datetime.strptime('2020-05-03', DATE_FORMAT),
+        'billablePeriod_to': datetime.strptime('2020-05-03', DATE_FORMAT),
+        'created': datetime.strptime('2020-05-03', DATE_FORMAT),
         'type': 'O',
         'diagnosis.diagnosisReference_0': 4,
         'diagnosis.diagnosisReference_1': 4,

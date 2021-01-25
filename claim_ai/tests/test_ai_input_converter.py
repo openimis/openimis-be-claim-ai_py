@@ -66,8 +66,8 @@ class TestAiInputConverter(TestCase):
         self.assertEqual(service_use_context, expected_service['useContext'])
         self.assertEqual(service_provision_type, expected_service['type'])
 
-        service_claim_quantity = claim_data_column[4]
-        service_claim_unit_price = claim_data_column[5]
+        service_claim_quantity = claim_data_column[5]
+        service_claim_unit_price = claim_data_column[6]
         expected_claim = self.TEST_HELPER.EXPECTED_CLAIM_ENTRY_FOR_SERVICE
 
         self.assertEqual(service_claim_unit_price, expected_claim['item.unitPrice'])
@@ -115,7 +115,7 @@ class TestAiInputConverter(TestCase):
         self.assertEqual(patient_group, expected_patient['group'])
 
     def __asert_item_independent_claim_fields(self, generated_input):
-        non_mutable_claim_fields = [0, 1, 2, 3, 6, 7]
+        non_mutable_claim_fields = [0, 1, 2, 3, 4, 7, 8, 9]
         # Compare fields not related to item
         assert_series_equal(
             generated_input[0]['Claim'].iloc[non_mutable_claim_fields],
@@ -123,16 +123,18 @@ class TestAiInputConverter(TestCase):
         )
         claim_frame = generated_input[0]['Claim']
         claim_identifier = claim_frame[0]
-        claim_billablePeriod = claim_frame[1]
-        claim_created = claim_frame[2]
-        claim_type = claim_frame[3]
-        claim_diagnosis_0 = claim_frame[6]
-        claim_diagnosis_1 = claim_frame[7]
-        claim_enterer = claim_frame[8]
+        claim_billable_period_from = claim_frame[1]
+        claim_billable_period_to = claim_frame[2]
+        claim_created = claim_frame[3]
+        claim_type = claim_frame[4]
+        claim_diagnosis_0 = claim_frame[7]
+        claim_diagnosis_1 = claim_frame[8]
+        claim_enterer = claim_frame[9]
 
         expected_claim = self.TEST_HELPER.EXPECTED_NON_MUTABLE_CLAIM_ENTRY_FIELDS
         self.assertEqual(claim_identifier, expected_claim['identifier'])
-        self.assertEqual(claim_billablePeriod, expected_claim['billablePeriod'])
+        self.assertEqual(claim_billable_period_from, expected_claim['billablePeriod_from'])
+        self.assertEqual(claim_billable_period_to, expected_claim['billablePeriod_to'])
         self.assertEqual(claim_created, expected_claim['created'])
         self.assertEqual(claim_type, expected_claim['type'])
         self.assertEqual(claim_diagnosis_0, expected_claim['diagnosis.diagnosisReference_0'])
