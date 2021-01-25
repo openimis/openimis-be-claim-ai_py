@@ -1,19 +1,13 @@
-import inspect
 import json
+import logging
 import zlib
-import time
-import asyncio
-import threading
 import concurrent.futures
-import functools
-
-from channels.exceptions import StopConsumer
+import traceback
 
 from ..evaluation import ClaimBundleEvaluation
-from channels.generic.websocket import WebsocketConsumer, AsyncConsumer
+from channels.generic.websocket import AsyncConsumer
 
-
-import traceback
+logger = logging.getLogger(__name__)
 
 
 class ClaimConsumer(AsyncConsumer):
@@ -30,9 +24,10 @@ class ClaimConsumer(AsyncConsumer):
         if payload['type'] == 'claim.bundle.payload':
             index = self._assign_event_index(payload)
             await self._bundle_evaluation(payload['content'], index)
+            print(F"Payload with id {index} evaluated")
         elif payload['type'] == 'claim.bundle.acceptance':
             # TODO: confirm evaluation receive and remove it from query
-            print("Payload received")
+            print("Evaluated payload accepted")
             pass
 
     def _get_content(self, event):
@@ -45,9 +40,10 @@ class ClaimConsumer(AsyncConsumer):
             bundle = json.loads(bytes_data.decode("utf-8"))
             return bundle
 
-    def _assign_event_index(self, event):
+    def _assign_event_index(self, payload):
+        if payload.get('bundle_id', None):
+            return payload['bundle_id']
         event_index = len(self.bundle_query.keys())
-        self.bundle_query[event_index] = event
         return event_index
 
     async def _bundle_evaluation(self, content, event_index):
@@ -55,16 +51,20 @@ class ClaimConsumer(AsyncConsumer):
         await self._send_evaluation(content, event_index)
 
     async def _send_acceptance(self, event_index):
-        accept_response = { 'type': 'claim.bundle.acceptance', 'content': 'Accepted', 'index': event_index}
+        accept_response = {'type': 'claim.bundle.acceptance', 'content': 'Accepted', 'index': event_index}
         await self.send({
             'text': json.dumps(accept_response),
             'type': 'websocket.send'
         })
 
     async def _send_evaluation(self, bundle, event_index):
-        evaluation_result = ClaimBundleEvaluation.evaluate_bundle(bundle)
-        evaluation_response = {'type': 'claim.bundle.payload', 'content': evaluation_result, 'index': event_index}
+        try:
+            evaluation_result = ClaimBundleEvaluation.evaluate_bundle(bundle)
+            evaluation_response = {'type': 'claim.bundle.payload', 'content': evaluation_result, 'index': event_index}
+        except Exception as e:
+            logger.error("Exception during claim evaluation: {}".format(traceback.print_exc()))
+            evaluation_response = {'type': 'claim.bundle.evaluation_exception', 'content': str(e), 'index': event_index}
         await self.send({
-            'type': 'websocket.send',
-            'text': json.dumps(evaluation_response)
-        })
+                'type': 'websocket.send',
+                'text': json.dumps(evaluation_response)
+            })
