@@ -75,7 +75,7 @@ class ClaimConsumer(AsyncConsumer):
                 ((header_name, value) for header_name, value in self.scope['headers']
                  if header_name == b'auth-token'), (None, None)
             )
-            if auth_token.decode("utf-8") not in ClaimAiConfig.authentication:
+            if not auth_token or auth_token.decode("utf-8") not in ClaimAiConfig.authentication:
                 response_payload = {'type': 'claim.bundle.authentication_exception',
                                     'content': 'Invalid authentication token'}
                 await self.send({"type": "websocket.send",
