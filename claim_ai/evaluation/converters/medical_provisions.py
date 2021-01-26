@@ -1,5 +1,8 @@
+import core
+
 from claim_ai.evaluation import input_models
 from claim_ai.evaluation.converters.base_converter import AbstractConverter
+from claim_ai.evaluation.input_models import ProvidedItem, Claim
 
 
 class BaseProvidedConverter(AbstractConverter):
@@ -18,6 +21,49 @@ class BaseProvidedConverter(AbstractConverter):
         for claim_item in claim_items:
             medications.append(self._convert_provided(claim_item))
         return medications
+
+    def to_ai_output(self, ai_item: ProvidedItem, claim: Claim, evaluation_result, sequence=0):
+        extension = self._get_extension(ai_item)
+        adjudication = self._get_adjudication(ai_item, claim.item_quantity, evaluation_result)
+        return {
+            "itemSequence": sequence,
+            "adjudication": adjudication,
+            "extension": extension
+        }
+
+    def _get_extension(self, ai_item: ProvidedItem):
+        return [
+            {
+                "url": self.provision_type,   # "Medication" or "ActivityDefinition"
+                "valueReference": {
+                    "reference": F"{self.provision_type}/{ai_item.identifier}"
+                }
+            }
+        ]
+
+    def _get_adjudication(self, ai_item, quantity, evaluation_result_code):
+        result_text = 'accepted' if evaluation_result_code == '0' else 'rejected'
+        return [{"category": self._get_adjudication_category(),
+                "reason": {
+                    "coding": [
+                        {
+                            "code": evaluation_result_code  # "0": Accepted, "1": Rejected
+                        }
+                    ],
+                    "text": result_text  # Description of the result as "accepted" or "rejected"
+                },
+                "amount": {
+                    "currency": core.currency if hasattr(core, 'currency') else None,
+                    "value": ai_item.unit_price
+                },
+                "value": quantity
+            }]
+
+    def _get_adjudication_category(self):
+        return {
+            "coding": [{"code": "-2"}],
+            "text": "AI"
+        }
 
     def _get_medications(self, claim):
         return [item for item in claim['contained']

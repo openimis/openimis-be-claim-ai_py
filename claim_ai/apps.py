@@ -4,6 +4,7 @@ MODULE_NAME = 'claim_ai'
 
 DEFAULT_CONFIG = {
     'authentication': [],
+    'claim_response_url': 'http://localhost:8000/claim_ai/ClaimResponse',
     'ai_model_file': "",
     'claim_response_organization': 'openIMIS-Claim-AI',
     'date_format': '%Y-%m-%d',
@@ -16,6 +17,7 @@ class ClaimAiConfig(AppConfig):
     authentication = DEFAULT_CONFIG['authentication']
     ai_model_file = DEFAULT_CONFIG['ai_model_file']
     claim_response_organization = DEFAULT_CONFIG['claim_response_organization']
+    claim_response_url = DEFAULT_CONFIG['claim_response_url']
     date_format = DEFAULT_CONFIG['date_format']
 
     def _configure_perms(self, cfg):

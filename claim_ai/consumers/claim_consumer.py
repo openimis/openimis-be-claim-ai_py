@@ -61,10 +61,9 @@ class ClaimConsumer(AsyncConsumer):
         try:
             evaluation_result = ClaimBundleEvaluation.evaluate_bundle(bundle)
             evaluation_response = {'type': 'claim.bundle.payload', 'content': evaluation_result, 'index': event_index}
+            await self.send({'type': 'websocket.send', 'text': json.dumps(evaluation_response) })
         except Exception as e:
             logger.error("Exception during claim evaluation: {}".format(traceback.print_exc()))
             evaluation_response = {'type': 'claim.bundle.evaluation_exception', 'content': str(e), 'index': event_index}
-        await self.send({
-                'type': 'websocket.send',
-                'text': json.dumps(evaluation_response)
-            })
+            await self.send({'type': 'websocket.send', 'text': json.dumps(evaluation_response) })
+
