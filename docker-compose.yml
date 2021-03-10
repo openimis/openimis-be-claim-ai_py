@@ -34,7 +34,7 @@ services:
       - CELERY_BROKER_URL=amqp://rabbitmq
       - WSGI_APP=False
       - ASGI_APP=True
-      - ASGI_PORT=8000
+      - ASGI_PORT=8001
       - NO_DATABASE=True
     networks:
       - openimis-net
