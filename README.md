@@ -12,7 +12,7 @@ None
 None
 
 ## Services
-###ClaimConsumer, websocket service responsible for AI evaluation
+### ClaimConsumer, websocket service responsible for AI evaluation
 Websocket connection is available at `claim_ai/ws/Claim/<process_id>/`. It accepts bytes which payloads which after
 decoding utf-8 decoding are in format:
 ```json
@@ -21,10 +21,10 @@ decoding utf-8 decoding are in format:
   'content': <payload_content>
 }
 ```
-###Payload types: 
-* ###'claim.bundle.payload'
+### Payload types: 
+* ### 'claim.bundle.payload'
 
-  #####Request:
+  ##### Request:
   ```json
   {
     'type': 'claim.bundle.payload',
@@ -32,7 +32,7 @@ decoding utf-8 decoding are in format:
     'bundle_id': <bundle_id> // Optional argument with bundle id used for bundle distinction
   }
   ```
-  #####Response:
+  ##### Response:
   ```json
   {
     'type': 'claim.bundle.payload',
@@ -45,16 +45,16 @@ decoding utf-8 decoding are in format:
   proper 'claim.bundle.payload' response with evaluation result is sent.
   
 
-* ###'claim.bundle.acceptance'
+* ### 'claim.bundle.acceptance'
 
-  #####Request:
+  ##### Request:
   ```json
   {
     'type': 'claim.bundle.acceptance',
     'content': <bundle_id> // index receieved from claim.bundle.payload
   }
   ```
-  #####Response:
+  ##### Response:
   ```json
   {
      'type': 'claim.bundle.acceptance', 
@@ -66,8 +66,8 @@ decoding utf-8 decoding are in format:
   receieved. Response is sent after claim.bundle.payload was receieved from the server.
   
 
-* ###'claim.bundle.authentication_exception'
-  #####Response:
+* ### 'claim.bundle.authentication_exception'
+  ##### Response:
   ```json
   {
     'type': 'claim.bundle.authentication_exception',
@@ -76,8 +76,8 @@ decoding utf-8 decoding are in format:
   ```
   If token authentication is used and invalid token was provided by client this payload
   is sent and connection is closed immediately.
-* ###'claim.bundle.authentication_exception'
-  #####Response:
+* ### 'claim.bundle.authentication_exception'
+  ##### Response:
   ```json
   {
     'type': 'claim.bundle.evaluation_exception', 
