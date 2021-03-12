@@ -1,0 +1,12 @@
+{
+  "modules": [
+    {
+      "name": "core",
+      "pip": "openimis-be-core==1.2.0rc4"
+    },
+    {
+      "name": "claim_ai",
+      "pip": "-e ./../openimis-be-claim_ai_py"
+    }
+  ]
+}

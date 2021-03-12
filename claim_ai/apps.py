@@ -1,4 +1,11 @@
+import json
+import logging
+import os
+
 from django.apps import AppConfig
+from pathlib import Path
+
+logger = logging.getLogger(__name__)
 
 MODULE_NAME = 'claim_ai'
 
@@ -26,5 +33,14 @@ class ClaimAiConfig(AppConfig):
 
     def ready(self):
         from core.models import ModuleConfiguration
-        cfg = ModuleConfiguration.get_or_default(MODULE_NAME, DEFAULT_CONFIG)
-        self._configure_perms(cfg)
+        try:
+            if bool(os.environ.get('NO_DATABASE', False)):
+                abs_path = Path(__file__).absolute().parent
+                with open(F'{abs_path}/module_config.json') as json_file:
+                    cfg = json.load(json_file)
+            else:
+                cfg = ModuleConfiguration.get_or_default(MODULE_NAME, DEFAULT_CONFIG)
+            self._configure_perms(cfg)
+        except Exception as e:
+            logger.error('Loading configuration for claim_ai failed, using default')
+            self._configure_perms(DEFAULT_CONFIG)

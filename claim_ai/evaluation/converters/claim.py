@@ -11,7 +11,7 @@ class ClaimConverter(AbstractConverter):
     def to_ai_input(self, claim):
         claim_inputs_for_items = defaultdict(lambda: {})
 
-        for item in claim['item']:
+        for item in claim.get('item', []):
             item_type = item['extension'][0]['url']
             item_id = self._get_item_id_by_product_service(claim, item_type, item['productOrService']['text'])
             claim_item_id = item['extension'][0]['valueReference']['identifier']['value']
