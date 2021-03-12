@@ -25,7 +25,8 @@ services:
       context: ../openimis-be-claim_ai_py
     command: start_asgi
     environment:
-      - SIMPLE_DATABASE=True
+      - NO_DATABASE_ENGINE=True
+      - NO_DATABASE=True
       - CHANNELS_HOST=amqp://guest:guest@127.0.0.1/
       - REMOTE_USER_AUTHENTICATION=True
       - DEBUG=True
@@ -35,7 +36,6 @@ services:
       - WSGI_APP=False
       - ASGI_APP=True
       - ASGI_PORT=8001
-      - NO_DATABASE=True
     networks:
       - openimis-net
     ## WARNING:
