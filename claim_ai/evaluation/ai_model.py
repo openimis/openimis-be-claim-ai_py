@@ -108,6 +108,8 @@ class AiModel:
         return self.model.predict(normalized_input)
 
     def _load_model(self):
+        if not ClaimAiConfig.ai_model_file:
+            raise FileNotFoundError("Path to AI model file not found in config")
         return self.__load_from_file(ClaimAiConfig.ai_model_file, joblib.load)
 
     def _load_encoder(self):
