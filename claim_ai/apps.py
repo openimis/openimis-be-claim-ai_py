@@ -40,10 +40,11 @@ class ClaimAiConfig(AppConfig):
     def ready(self):
         from core.models import ModuleConfiguration
         try:
-            if bool(os.environ.get('NO_DATABASE', False)):
+            if os.environ.get('NO_DATABASE_ENGINE', False) or os.environ.get('NO_DATABASE', False):
                 abs_path = Path(__file__).absolute().parent
                 with open(F'{abs_path}/module_config.json') as json_file:
                     cfg = json.load(json_file)
+                    print(cfg)
             else:
                 cfg = ModuleConfiguration.get_or_default(MODULE_NAME, DEFAULT_CONFIG)
             self._configure_perms(cfg)
