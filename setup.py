@@ -22,7 +22,11 @@ setup(
     install_requires=[
         'django',
         'django-db-signals',
-        'djangorestframework'
+        'djangorestframework',
+        'joblib',
+        'scikit-learn==0.23.2',
+        'xgboost',
+        'category_encoders'
     ],
     classifiers=[
         'Environment :: Web Environment',

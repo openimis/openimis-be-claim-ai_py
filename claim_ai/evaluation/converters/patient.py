@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from claim_ai.apps import ClaimAiConfig
 from claim_ai.evaluation import input_models
 from claim_ai.evaluation.converters.base_converter import AbstractConverter
@@ -25,10 +27,16 @@ class PatientConverter(AbstractConverter):
         return claim_patient['identifier']['value']
 
     def _get_contained_patient_birth_date(self, contained_patient):
-        return contained_patient['birthDate']
+        return datetime.strptime(contained_patient['birthDate'], ClaimAiConfig.date_format)
 
     def _get_contained_patient_gender(self, contained_patient):
-        return contained_patient['gender']
+        gender = contained_patient['gender']
+        if gender == 'male':
+            return 'M'
+        elif gender == 'female':
+            return 'F'
+        else:
+            return gender
 
     def _get_contained_patient_is_head(self, contained_patient):
         # IMIS value for isHead extension url: https://openimis.atlassian.net/wiki/spaces/OP/pages/960069653/isHead"
@@ -46,6 +54,6 @@ class PatientConverter(AbstractConverter):
         return location_extension['valueReference']['identifier']['value']
 
     def _get_contained_patient_group(self, contained_patient):
-        # TODO: This extension is not yet available in fhir api, returns None as default
-        return next((extension['value'] for extension in contained_patient['extension']
-                     if extension['url'].endswith('povertyStatus')) or [], None)
+        group = next(extension for extension in contained_patient['extension']
+                                  if extension['url'].endswith('group'))
+        return group['valueReference']['identifier']['value']
