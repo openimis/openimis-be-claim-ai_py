@@ -21,6 +21,11 @@ DEFAULT_CONFIG = {
     'date_format': '%Y-%m-%d'
 }
 
+if os.environ.get('NO_DATABASE_ENGINE', False) or os.environ.get('NO_DATABASE', False):
+    abs_path = Path(__file__).absolute().parent
+    with open(F'{abs_path}/module_config.json') as json_file:
+        DEFAULT_CONFIG = json.load(json_file)
+
 
 class ClaimAiConfig(AppConfig):
     name = MODULE_NAME
@@ -44,7 +49,6 @@ class ClaimAiConfig(AppConfig):
                 abs_path = Path(__file__).absolute().parent
                 with open(F'{abs_path}/module_config.json') as json_file:
                     cfg = json.load(json_file)
-                    print(cfg)
             else:
                 cfg = ModuleConfiguration.get_or_default(MODULE_NAME, DEFAULT_CONFIG)
             self._configure_perms(cfg)
