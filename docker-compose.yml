@@ -1,0 +1,48 @@
+version: "2.4"
+
+services:
+  rabbitmq:
+    container_name: openimis-rabbitmq
+    # 3-management is the 3.x version including the admin interface. For a barebones image, use 3-alpine
+    image: rabbitmq:3-management
+    networks:
+      - openimis-net
+    ## WARNING:
+    ## exposing the frontend port outside the openimis-net network
+    ## may lead to security issue (depending on your network topology)
+    ports:
+      # Management port, default credentials: guest/guest
+      - 15672:15672
+      # Other RabbitMQ ports
+      - 5672:5672
+      #- 6379:6379
+      - 4369:4369
+  claim-ai:
+    ##restart: always
+    platform: linux
+    container_name: openimis-claim-ai
+    build:
+      context: ../openimis-be-claim_ai_py
+    command: start_asgi
+    environment:
+      - NO_DATABASE_ENGINE=True
+      - NO_DATABASE=True
+      - CHANNELS_HOST=amqp://guest:guest@127.0.0.1/
+      - REMOTE_USER_AUTHENTICATION=True
+      - DEBUG=True
+      - ROW_SECURITY=False
+      - SITE_ROOT=api
+      - CELERY_BROKER_URL=amqp://rabbitmq
+      - WSGI_APP=False
+      - ASGI_APP=True
+      - ASGI_PORT=8001
+    networks:
+      - openimis-net
+    ## WARNING:
+    ## exposing the backend port outside the openimis-net network
+    ## may lead to security issue (depending on your network topology)
+    ports:
+      - 8001:8001
+
+networks:
+  openimis-net:

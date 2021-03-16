@@ -3,6 +3,9 @@ import logging
 import os
 
 from django.apps import AppConfig
+from pathlib import Path
+
+logger = logging.getLogger(__name__)
 
 logger = logging.getLogger(__name__)
 
@@ -38,7 +41,8 @@ class ClaimAiConfig(AppConfig):
         from core.models import ModuleConfiguration
         try:
             if bool(os.environ.get('NO_DATABASE', False)):
-                with open('module_config.json') as json_file:
+                abs_path = Path(__file__).absolute().parent
+                with open(F'{abs_path}/module_config.json') as json_file:
                     cfg = json.load(json_file)
             else:
                 cfg = ModuleConfiguration.get_or_default(MODULE_NAME, DEFAULT_CONFIG)
