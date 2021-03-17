@@ -51,9 +51,18 @@ class PatientConverter(AbstractConverter):
     def _get_contained_patient_location_code(self, contained_patient):
         location_extension = next(extension for extension in contained_patient['extension']
                                   if extension['url'].endswith('locationCode'))
-        return location_extension['valueReference']['identifier']['value']
+
+        reference = location_extension['valueReference'].get('reference', None)
+        if reference:
+            return reference.split('/')[1]
+        else:
+            return location_extension['valueReference']['identifier']['value']
 
     def _get_contained_patient_group(self, contained_patient):
         group = next(extension for extension in contained_patient['extension']
                                   if extension['url'].endswith('group'))
-        return group['valueReference']['identifier']['value']
+        reference = group['valueReference'].get('reference', None)
+        if reference:
+            return reference.split('/')[1]
+        else:
+            return group['valueReference']['identifier']['value']

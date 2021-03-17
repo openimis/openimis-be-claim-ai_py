@@ -17,7 +17,7 @@ DEFAULT_CONFIG = {
     'ai_encoder_file': "Encoder.obj",
     'claim_response_organization': 'openIMIS-Claim-AI',
     'date_format': '%Y-%m-%d',
-    'first_date': '2016-05-01'
+    'first_date': '2016-01-01'
 }
 
 if os.environ.get('NO_DATABASE_ENGINE', False) or os.environ.get('NO_DATABASE', False):
