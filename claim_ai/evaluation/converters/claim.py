@@ -14,6 +14,7 @@ class ClaimConverter(AbstractConverter):
         for item in claim.get('item', []):
             item_type = item['extension'][0]['url']
             item_id = self._get_item_id_by_product_service(claim, item_type, item['productOrService']['text'])
+            item_id = item_id.split("/")[1]
             claim_item_id = item['extension'][0]['valueReference']['identifier']['value']
             claim_inputs_for_items[item_type][item_id] = self.convert_claim_fields(claim, claim_item_id)
         return claim_inputs_for_items
@@ -38,11 +39,11 @@ class ClaimConverter(AbstractConverter):
 
     def _get_claim_item_quantity(self, claim, item_id):
         return next(item['quantity']['value'] for item in claim['item']
-                    if item['extension'][0]['valueReference']['identifier']['value'] == item_id)
+                    if item_id in item['extension'][0]['valueReference']['identifier']['value'])
 
     def _get_claim_item_unit_price(self, claim, item_id):
         return next(item['unitPrice']['value'] for item in claim['item']
-                    if item['extension'][0]['valueReference']['identifier']['value'] == item_id)
+                    if item_id in item['extension'][0]['valueReference']['identifier']['value'])
 
     def _get_diagnosis_reference(self, claim):
         diagnoses = claim['diagnosis']

@@ -1,3 +1,4 @@
+import asyncio
 import json
 import logging
 import zlib
@@ -14,6 +15,7 @@ logger = logging.getLogger(__name__)
 class ClaimConsumer(AsyncConsumer):
 
     async def websocket_connect(self, event):
+        logger.info("Client connected!")
         await self.send({"type": "websocket.accept"})
         await self._authenticate_connection()
         self.bundle_query = {}
@@ -23,11 +25,10 @@ class ClaimConsumer(AsyncConsumer):
         payload = self._get_content(event)
         if payload['type'] == 'claim.bundle.payload':
             index = self._assign_event_index(payload)
-            await self._bundle_evaluation(payload['content'], index)
-            print(F"Payload with id {index} evaluated")
+            asyncio.ensure_future(self._bundle_evaluation(payload['content'], index))
         elif payload['type'] == 'claim.bundle.acceptance':
             # TODO: confirm evaluation receive and remove it from query
-            print("Evaluated payload accepted")
+            logger.info(F"Evaluated payload accepted: {payload['content']}")
             pass
 
     def _get_content(self, event):
@@ -61,11 +62,11 @@ class ClaimConsumer(AsyncConsumer):
         try:
             evaluation_result = ClaimBundleEvaluation.evaluate_bundle(bundle)
             evaluation_response = {'type': 'claim.bundle.payload', 'content': evaluation_result, 'index': event_index}
-            await self.send({'type': 'websocket.send', 'text': json.dumps(evaluation_response) })
+            await self.send({'type': 'websocket.send', 'text': json.dumps(evaluation_response)})
         except Exception as e:
-            logger.error("Exception during claim evaluation: {}".format(traceback.print_exc()))
+            logger.error("Exception during claim evaluation: \n{}".format(str(e)))
             evaluation_response = {'type': 'claim.bundle.evaluation_exception', 'content': str(e), 'index': event_index}
-            await self.send({'type': 'websocket.send', 'text': json.dumps(evaluation_response) })
+            await self.send({'type': 'websocket.send', 'text': json.dumps(evaluation_response)})
 
     async def _authenticate_connection(self):
         if not ClaimAiConfig.authentication:

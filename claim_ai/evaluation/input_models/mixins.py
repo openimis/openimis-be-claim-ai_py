@@ -9,5 +9,5 @@ class DataFrameRepresentationMixin:
         return pandas.DataFrame(
             data=[attribute for attribute in self.__dict__.values()],
             columns=[str(type(self).__name__)],
-            index=[index for index in self.__dict__.keys()]
+            index=[self.alias_or_default(index) for index in self.__dict__.keys()]
         )

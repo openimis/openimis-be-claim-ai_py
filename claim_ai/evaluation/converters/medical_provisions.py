@@ -71,10 +71,11 @@ class BaseProvidedConverter(AbstractConverter):
 
     def _convert_provided(self, provided):
         return self.input_model(
-            identifier=provided['id'],
+            identifier=provided['id'].split('/')[1],
             unit_price=self._get_unit_price_from_extension(provided['extension']),
             frequency=self._get_frequency_from_extension(provided['extension']),
-            use_context=self._get_use_context_from_provision(provided)
+            use_context=self._get_use_context_from_provision(provided),
+            item_level=self._get_item_level(provided)
         )
 
     def _get_unit_price_from_extension(self, extension):
@@ -92,7 +93,7 @@ class BaseProvidedConverter(AbstractConverter):
 
         gender_context_value = self._get_gender_context_value(gender_context) if gender_context else 0
         age_context_value = self._get_age_context_value(age_context) if age_context else 0
-        return bin(gender_context_value+age_context_value)
+        return gender_context_value+age_context_value
 
     def _get_context(self, provided, context_url):
         return next((context for context in provided['extension']
@@ -113,6 +114,13 @@ class BaseProvidedConverter(AbstractConverter):
     def _get_codes(self, use_context):
         return [coding['code'] for coding in use_context['valueUsageContext']['valueCodeableConcept']['coding']]
 
+    def _get_item_level(self, item):
+        context = self._get_context(item, 'useContextLevel')
+        if context:
+            return context['valueUsageContext']['valueCodeableConcept']['coding'][0]['code']
+        else:
+            return None
+
 
 class MedicationConverter(BaseProvidedConverter):
     provision_type = 'Medication'
@@ -129,3 +137,10 @@ class ActivityDefinitionConverter(BaseProvidedConverter):
 
     def _get_codes(self, use_context):
         return [coding['code'] for coding in use_context['valueCodeableConcept']['coding']]
+
+    def _get_item_level(self, item):
+        context = self._get_context(item, 'useContextLevel')
+        if context:
+            return context['valueCodeableConcept']['coding'][0]['code']
+        else:
+            return None

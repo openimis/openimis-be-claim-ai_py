@@ -598,6 +598,23 @@ socket_data = {
                                             "text": "Clinical Venue"
                                         }
                                     }
+                                },
+                                {
+                                    "url": "useContextLevel",
+                                    "valueUsageContext": {
+                                        "code": {
+                                            "code": "level"
+                                        },
+                                        "valueCodeableConcept": {
+                                            "coding": [
+                                                {
+                                                    "code": "M",
+                                                    "display": "Medication"
+                                                }
+                                            ],
+                                            "text": "Item Level"
+                                        }
+                                    }
                                 }
                             ],
                             "form": {
@@ -729,6 +746,20 @@ socket_data = {
                                             }
                                         ],
                                         "text": "Clinical Venue"
+                                    }
+                                },
+                                {
+                                    "code": {
+                                        "code": "useContextLevel"
+                                    },
+                                    "valueCodeableConcept": {
+                                        "coding": [
+                                            {
+                                                "code": "S",
+                                                "display": "Simple Service"
+                                            }
+                                        ],
+                                        "text": "Service Level"
                                     }
                                 }
                             ]

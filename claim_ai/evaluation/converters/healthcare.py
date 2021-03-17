@@ -17,13 +17,21 @@ class HealthcareServiceConverter(AbstractConverter):
         return healthcare
 
     def _get_contained_healthcare_service_identifier(self, healthcare_extension):
-        return healthcare_extension['id']
+        return healthcare_extension['id'].split('/')[1]
 
     def _get_contained_healthcare_service_location(self, healthcare_extension):
         return healthcare_extension['location'][0]['identifier']['value']
 
     def _get_contained_healthcare_service_category(self, healthcare_extension):
-        return healthcare_extension['category'][0]['coding'][0]['code']
+        category = healthcare_extension['category'][0]['coding'][0]['code']
+        if category == 'OF':
+            return 'C'
+        elif category == 'HOSP':
+            return 'H'
+        elif category == 'COMM':
+            return 'D'
+        else:
+            return category
 
     def _get_contained_healthcare_service_type(self, healthcare_extension):
         return healthcare_extension['type'][0]['coding'][0]['code']
