@@ -13,6 +13,8 @@ from claim_ai.apps import ClaimAiConfig
 
 class AiModel:
 
+    FIRST_DATE = datetime.strptime(ClaimAiConfig.first_date, ClaimAiConfig.date_format)
+
     def __init__(self):
         self.model = self._load_model()
         self.encoder = self._load_encoder()
@@ -20,20 +22,18 @@ class AiModel:
 
     def evaluate_bundle(self, input_bundle):
         index, clean_input = self.sanity_check(input_bundle)
-        clean_input = self.fill_missing_varaibles(clean_input)
+        clean_input = self.fill_missing_variables(clean_input)
         clean_input = self.convert_variables(clean_input)
         clean_input = self.normalize_input(clean_input)
         return index, self.predict(clean_input)
 
     def sanity_check(self, input):
-        date_from = datetime(2016, 5, 15)
-        date_claimed = datetime(2016, 5, 15)
         exclusion_cnd3 = (input['ClaimAdminUUID'].isnull()) | \
                          (input['VisitType'].isnull())
 
-        exclusion_cnd5 =   (input['DateFrom'] < date_from) | \
+        exclusion_cnd5 =   (input['DateFrom'] < self.FIRST_DATE) | \
                            (input['DOB'] > input['DateClaimed']) | \
-                           (input['DateClaimed'] < date_claimed) | \
+                           (input['DateClaimed'] < self.FIRST_DATE) | \
                            (input['DateClaimed'] < input['DateFrom'])
 
         conditions = [
@@ -57,7 +57,7 @@ class AiModel:
         clean_input = input.loc[index, selected_cols].copy()
         return index, clean_input
 
-    def fill_missing_varaibles(self, clean_input):
+    def fill_missing_variables(self, clean_input):
         index = clean_input['ICDID1'].isnull()
         clean_input.loc[index, 'ICDID1'] = clean_input.loc[index, 'ICDID']
         return clean_input
@@ -70,7 +70,7 @@ class AiModel:
         # # Convert to number of days the columns, same date from configuration
         date_cols = ['DateFrom', 'DateTo', 'DateClaimed']
         for i in date_cols:
-            clean_input[i] = (clean_input[i] - datetime(2016, 1, 1)).dt.days
+            clean_input[i] = (clean_input[i] - self.FIRST_DATE).dt.days
 
         # 4.2 Convert text or other types features to numeric ones
         cat_features = ['ItemUUID', 'ClaimUUID', 'ClaimAdminUUID', 'HFUUID',
