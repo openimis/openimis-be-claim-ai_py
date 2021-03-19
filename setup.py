@@ -26,7 +26,8 @@ setup(
         'joblib',
         'scikit-learn==0.23.2',
         'xgboost',
-        'category_encoders'
+        'category_encoders',
+        'pandas>=1.2.3'
     ],
     classifiers=[
         'Environment :: Web Environment',

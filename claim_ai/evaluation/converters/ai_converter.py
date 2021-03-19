@@ -61,6 +61,34 @@ class AiConverter(AbstractConverter):
             "item": self._build_items(entries_with_evaluation)
         }
 
+    def claim_response_error(self, claim: dict, error_reason: str):
+        return {
+            "resourceType": "ClaimResponse",
+            "status": claim['status'],
+            "type": claim['type'],
+            "use": claim['use'],
+            "patient": {
+                "reference": claim['patient']['reference']
+            },
+            "created": date.today().strftime(ClaimAiConfig.date_format),
+            "insurer": {
+                "reference": F"Organization/{ClaimAiConfig.claim_response_organization}"
+            },
+            "id": claim['id'],
+            "request": {
+                "reference": F"Claim/{claim['id']}",
+            },
+            "outcome": "error",
+            "error": [
+                {
+                    "coding": [{
+                        "code": "-1"
+                    }],
+                    "text": error_reason
+                }
+            ]
+        }
+
     def _build_items(self, entries_with_evaluation: List[EvaluationResult]):
         response_items = []
         for entry in entries_with_evaluation:
