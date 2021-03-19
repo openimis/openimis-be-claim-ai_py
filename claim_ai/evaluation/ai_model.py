@@ -1,4 +1,5 @@
 import os
+import sys
 from pathlib import Path
 
 import numpy as np
@@ -81,11 +82,7 @@ class AiModel:
         encoded_input = clean_input.copy()
         transform_input = clean_input[cat_features]
         try:
-            # TODO: Should use encoded value instead of new categorization
-            # encoded_input[cat_features] = self.encoder.transform(transform_input)
-            encoded_input[cat_features] = clean_input[cat_features].astype('category')
-            for f in cat_features:
-                encoded_input[f] = encoded_input[f].cat.codes
+            encoded_input[cat_features] = self.encoder.transform(transform_input)
             return encoded_input
         except Exception as x:
             print('Exception: ', x)
