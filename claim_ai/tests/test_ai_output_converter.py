@@ -24,7 +24,7 @@ class TestAiInputConverter(TestCase):
         test_output = [EvaluationResult(claim, evaluation_input, 0) for evaluation_input in test_input]
         test_output[0].result = 0
         test_output[1].result = 1
-        generated_output = ai_converter.bundle_ai_output(test_output)
+        generated_output = ai_converter.bundle_ai_output(test_output, [])
         output_entry = generated_output['entry']
         output_claim_response = output_entry
 

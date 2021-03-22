@@ -267,10 +267,28 @@ socket_data = {
                                         "reference": "Location/63A90675-1BC9-42C6-967B-4D6EE36D4073",
                                         "type": "Location"
                                     }
+                                },
+                                {
+                                    "url": "https://openimis.atlassian.net/wiki/spaces/OP/pages/960069653/group",
+                                    "valueReference": {
+                                        "identifier": {
+                                            "type": {
+                                                "coding": [
+                                                    {
+                                                        "code": "UUID"
+                                                    }
+                                                ]
+                                            },
+                                            "use": "usual",
+                                            "value": "A3029606-76E6-4A7B-9A2A-2435B61B25A1"
+                                        },
+                                        "reference": "Group/A3029606-76E6-4A7B-9A2A-2435B61B25A1",
+                                        "type": "Group"
+                                    }
                                 }
                             ],
                             "gender": "female",
-                            "id": "CB8497C2-44E6-4E55-97B5-A88B6C3DEDB3",
+                            "id": "Patient/CB8497C2-44E6-4E55-97B5-A88B6C3DEDB3",
                             "identifier": [
                                 {
                                     "type": {
@@ -362,7 +380,7 @@ socket_data = {
                                 ],
                                 "text": "Other salmonella infections"
                             },
-                            "id": "4",
+                            "id": "Condition/4",
                             "identifier": [
                                 {
                                     "type": {
@@ -405,7 +423,7 @@ socket_data = {
                                 }
                             ],
                             "extraDetails": "Uitly road 1",
-                            "id": "EF9E8621-42E8-4C81-BB41-00A55F4DF467",
+                            "id": "HealthService/EF9E8621-42E8-4C81-BB41-00A55F4DF467",
                             "identifier": [
                                 {
                                     "type": {
@@ -472,7 +490,7 @@ socket_data = {
                         {
                             "resourceType": "Practitioner",
                             "birthDate": "1977-11-13",
-                            "id": "99B9C21B-E7B9-455E-9A23-560109FBBB55",
+                            "id": "Practitioner/99B9C21B-E7B9-455E-9A23-560109FBBB55",
                             "identifier": [
                                 {
                                     "type": {
@@ -625,7 +643,7 @@ socket_data = {
                                 ],
                                 "text": "1000 TABLETS"
                             },
-                            "id": "00B4F099-6122-4327-B033-0872FB1027D8",
+                            "id": "Medication/00B4F099-6122-4327-B033-0872FB1027D8",
                             "identifier": [
                                 {
                                     "type": {
@@ -667,7 +685,7 @@ socket_data = {
                                     "valueInteger": 0
                                 }
                             ],
-                            "id": "9FD65C19-6889-46D8-9572-A586D17CF286",
+                            "id": "ActivityDefinition/9FD65C19-6889-46D8-9572-A586D17CF286",
                             "identifier": [
                                 {
                                     "type": {
