@@ -43,6 +43,15 @@ services:
     ## may lead to security issue (depending on your network topology)
     ports:
       - 8001:8001
+    volumes: 
+      - "./scaler.pkl:/openimis-be-claim_ai_py/scaler.pkl"
+      - "./Encoder.obj:/openimis-be-claim_ai_py/Encoder.obj"
+      - "./joblib_Voting_Model.pkl:/openimis-be-claim_ai_py/joblib_Voting_Model.pkl"
+      - "./module_config.json:/openimis-be-claim_ai_py/module_config.json"
+
 
 networks:
   openimis-net:
+
+volumes:
+  claim-ai:

@@ -13,7 +13,7 @@ class TestAiInputConverter(TestCase):
     def test_conversion(self):
         ai_converter = converter.FHIRConverter()
 
-        claim_bundle_input_models = ai_converter.bundle_ai_input(self.TEST_BUNDLE)
+        claim_bundle_input_models, _ = ai_converter.bundle_ai_input(self.TEST_BUNDLE)
         self.assertEqual(len([claim for claim, _ in claim_bundle_input_models]), 1)  # input generated for single claim
 
         generated_input = []
@@ -40,7 +40,8 @@ class TestAiInputConverter(TestCase):
         item_unit_price = item_data_column[1]
         item_frequency = item_data_column[2]
         item_use_context = item_data_column[3]
-        item_provision_type = item_data_column[4]
+        item_provision_level = item_data_column[4]
+        item_provision_type = item_data_column[5]
 
         expected_number_of_items = self.TEST_HELPER.EXPECTED_NUMBER_OF_ITEM_ENTRIES
         expected_item = self.TEST_HELPER.EXPECTED_ITEM_ENTRY
@@ -49,6 +50,7 @@ class TestAiInputConverter(TestCase):
         self.assertEqual(item_unit_price, expected_item['unitPrice'])
         self.assertEqual(item_frequency, expected_item['frequency'])
         self.assertEqual(item_use_context, expected_item['useContext'])
+        self.assertEqual(item_provision_level, expected_item['item_level'])
         self.assertEqual(item_provision_type, expected_item['type'])
 
     def __asert_services(self, generated_input):
@@ -61,7 +63,8 @@ class TestAiInputConverter(TestCase):
         service_unit_price = service_data_column[1]
         service_frequency = service_data_column[2]
         service_use_context = service_data_column[3]
-        service_provision_type = service_data_column[4]
+        item_provision_level = service_data_column[4]
+        service_provision_type = service_data_column[5]
 
         expected_number_of_services = self.TEST_HELPER.EXPECTED_NUMBER_OF_SERVICE_ENTRIES
         expected_service = self.TEST_HELPER.EXPECTED_SERVICE_ENTRY
@@ -70,6 +73,7 @@ class TestAiInputConverter(TestCase):
         self.assertEqual(service_unit_price, expected_service['unitPrice'])
         self.assertEqual(service_frequency, expected_service['frequency'])
         self.assertEqual(service_use_context, expected_service['useContext'])
+        self.assertEqual(item_provision_level, expected_service['item_level'])
         self.assertEqual(service_provision_type, expected_service['type'])
 
         service_claim_quantity = claim_data_column[5]

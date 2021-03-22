@@ -1,8 +1,11 @@
 import pandas
+from numpy import nan
+
 from .test_fhir_bundle import socket_data
 from datetime import datetime
 
-def _fix_len(iterable, expected_len, empty=None):
+
+def _fix_len(iterable, expected_len, empty=nan):
     new_l = list(iterable)
     while len(new_l) < expected_len:
         new_l.append(empty)
@@ -21,15 +24,17 @@ class AiConvertionHelper():
         'identifier': '00B4F099-6122-4327-B033-0872FB1027D8',
         'unitPrice': 10.0,
         'frequency': 0,
-        'useContext': bin(15),  # Kid, adult, male, female
-        'type': 'Medication'
+        'useContext': 15,  # Kid, adult, male, female
+        'item_level': 'M',
+        'type': 'Medication',
     }
 
     EXPECTED_SERVICE_ENTRY = {
         'identifier': '9FD65C19-6889-46D8-9572-A586D17CF286',
         'unitPrice': 400.0,
         'frequency': 0,
-        'useContext': bin(6),  # Adult, female
+        'useContext': 6,  # Adult, female
+        'item_level': 'S',
         'type': 'ActivityDefinition'
     }
 
@@ -72,18 +77,18 @@ class AiConvertionHelper():
 
     EXPECTED_PATIENT_ENTRY = {
         'identifier': 'CB8497C2-44E6-4E55-97B5-A88B6C3DEDB3',
-        'birthDate': '1993-06-09',
-        'gender': 'female',
+        'birthDate': datetime(1993, 6, 9, 0, 0),
+        'gender': 'F',
         'isHead': False,
         'povertyStatus': False,  # Default for not present in the payload
         'locationCode': '63A90675-1BC9-42C6-967B-4D6EE36D4073',
-        'group': None,  # TODO: Require implementing fhir api extension
+        'group': 'A3029606-76E6-4A7B-9A2A-2435B61B25A1'
     }
 
     EXPECTED_HEALTHCARE_ENTRY = {
         'identifier': 'EF9E8621-42E8-4C81-BB41-00A55F4DF467',
         'location': '841419DF-29AB-48DC-B40D-E5A6DE8B1E1E',
-        'category': 'COMM',
+        'category': 'D',
         'type': 'O'
     }
 

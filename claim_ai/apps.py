@@ -3,6 +3,8 @@ import logging
 import os
 
 from django.apps import AppConfig
+from django.utils.autoreload import autoreload_started
+
 from pathlib import Path
 
 logger = logging.getLogger(__name__)
@@ -20,9 +22,19 @@ DEFAULT_CONFIG = {
     'first_date': '2016-01-01'
 }
 
+
+def get_module_config_path():
+    abs_path = Path(__file__).absolute().parent.parent
+    return F'{abs_path}/module_config.json'
+
+
+def config_autoreloader(sender, **kwargs):
+    sender.watch_file(get_module_config_path())
+
+
 if os.environ.get('NO_DATABASE_ENGINE', False) or os.environ.get('NO_DATABASE', False):
-    abs_path = Path(__file__).absolute().parent
-    with open(F'{abs_path}/module_config.json') as json_file:
+    path = get_module_config_path()
+    with open(path) as json_file:
         DEFAULT_CONFIG = json.load(json_file)
 
 
@@ -45,9 +57,10 @@ class ClaimAiConfig(AppConfig):
     def ready(self):
         from core.models import ModuleConfiguration
         try:
-            if os.environ.get('NO_DATABASE_ENGINE', False) or os.environ.get('NO_DATABASE', False):
-                abs_path = Path(__file__).absolute().parent
-                with open(F'{abs_path}/module_config.json') as json_file:
+            if os.environ.get('NO_DATABASE_ENGINE', False) or os.environ.get('NO_DATABASE', False): 
+                autoreload_started.connect(config_autoreloader)
+                path = get_module_config_path()
+                with open(path) as json_file:
                     cfg = json.load(json_file)
             else:
                 cfg = ModuleConfiguration.get_or_default(MODULE_NAME, DEFAULT_CONFIG)
