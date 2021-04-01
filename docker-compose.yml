@@ -27,22 +27,20 @@ services:
     environment:
       - NO_DATABASE_ENGINE=True
       - NO_DATABASE=True
-      - CHANNELS_HOST=amqp://guest:guest@127.0.0.1/
-      - REMOTE_USER_AUTHENTICATION=True
-      - DEBUG=True
-      - ROW_SECURITY=False
-      - SITE_ROOT=api
-      - CELERY_BROKER_URL=amqp://rabbitmq
       - WSGI_APP=False
       - ASGI_APP=True
-      - ASGI_PORT=8001
+      - SITE_ROOT=api
+      - CELERY_BROKER_URL=amqp://rabbitmq
+
+      - CHANNELS_HOST=${CHANNELS_HOST}
+      - ASGI_PORT=${ASGI_PORT}
     networks:
       - openimis-net
     ## WARNING:
     ## exposing the backend port outside the openimis-net network
     ## may lead to security issue (depending on your network topology)
     ports:
-      - 8001:8001
+      - ${ASGI_PORT}:${ASGI_PORT}
     volumes: 
       - "./scaler.pkl:/openimis-be-claim_ai_py/scaler.pkl"
       - "./Encoder.obj:/openimis-be-claim_ai_py/Encoder.obj"
