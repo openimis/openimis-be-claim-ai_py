@@ -8,6 +8,27 @@ It is dedicated to be deployed as a module of [openimis-be_py](https://github.co
 ## ORM mapping:
 None
 
+## Docker Setup:
+For setting up dockerized instance `.env` file have to be added to openimis-be-claim_ai_py.
+* env file must provide following variables:
+  ```
+  CHANNELS_HOST=<rabbitmq host used by channels layer>
+  ASGI_PORT=<Port on which the application is available>
+  ```
+  * If local instance of rabbitmq is used then `amqp://guest:guest@127.0.0.1/` can be used as CHANNELS HOST.
+  
+In openimis-be-claim_ai_py directory files regarding model evaluation - Scaler, Encoder and Model 
+have to be added.
+By default, expected file names are:
+- Scaler.obj
+- Encoder.obj
+- joblib_Voting_Model.pkl
+
+Used files can be changed by adjusting variables in `module_config.json`.
+For the default files a hot reload is applied. If files other than defaults are used, 
+hot reload can be added by adjusting `volume` paths in `claim-ai` service in docker-compose.
+
+
 ## Listened Django Signals
 None
 
