@@ -45,7 +45,7 @@ class PatientConverter(AbstractConverter):
 
     def _get_contained_patient_poverty_status(self, contained_patient):
         # PovertyStatus is optional extension, False is returned if not found
-        return next((extension['value'] for extension in contained_patient['extension']
+        return next((extension.get('valueBoolean', False) for extension in contained_patient['extension']
                     if extension['url'].endswith('povertyStatus')) or [], False)
 
     def _get_contained_patient_location_code(self, contained_patient):
