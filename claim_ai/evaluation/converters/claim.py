@@ -13,10 +13,9 @@ class ClaimConverter(AbstractConverter):
 
         for item in claim.get('item', []):
             item_type = item['extension'][0]['url']
-            item_id = self._get_item_id_by_product_service(claim, item_type, item['productOrService']['text'])
+            item_id = item['extension'][0]['valueReference']['reference']
             item_id = item_id.split("/")[1]
-            claim_item_id = item['extension'][0]['valueReference']['identifier']['value']
-            claim_inputs_for_items[item_type][item_id] = self.convert_claim_fields(claim, claim_item_id)
+            claim_inputs_for_items[item_type][item_id] = self.convert_claim_fields(claim, item_id)
         return claim_inputs_for_items
 
     def convert_claim_fields(self, claim, item_id):
@@ -59,7 +58,11 @@ class ClaimConverter(AbstractConverter):
     def _get_item_id_by_product_service(self, claim, resource_type, code):
         return next((provided['id'] for provided in claim['contained']
                      if provided['resourceType'] == resource_type
-                     and provided['identifier'][1]['value'] == code))
+                     and self._get_code_identifier(provided) == code))
 
     def _strptime(self, date_string):
         return datetime.strptime(date_string, ClaimAiConfig.date_format)
+
+    def _get_code_identifier(self, provision):
+        return next(p['value'] for p in provision['identifier']
+                    if p['type']['coding'][0]['code'] == 'SC')
