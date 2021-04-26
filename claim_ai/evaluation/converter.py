@@ -1,9 +1,14 @@
 from itertools import groupby
 from typing import List
 
+import traceback
+import logging
+
 from claim_ai.evaluation.converters import AiConverter
 from claim_ai.evaluation.evaluation_result import EvaluationResult
 from claim_ai.apps import ClaimAiConfig
+
+logger = logging.getLogger(__name__)
 
 
 class FHIRConverter:
@@ -17,6 +22,7 @@ class FHIRConverter:
             try:
                 correctly_transformed_claims.append((claim, self.claim_ai_input(claim)))
             except Exception as e:
+                logger.debug(traceback.format_exc())
                 errors.append((claim, str(e)))
         return correctly_transformed_claims, errors
 
@@ -33,7 +39,7 @@ class FHIRConverter:
         for claim, output in groupby(evaluation_output, lambda x: x.claim):
             claim_fhir_response = self.converter.to_ai_output(claim, list(output))
             entry = {
-                'fullUrl': ClaimAiConfig.claim_response_url+'/'+claim['id'],
+                'fullUrl': ClaimAiConfig.claim_response_url+'/'+str(claim['id']),
                 'resource': claim_fhir_response
             }
             response_bundle['entry'].append(entry)
@@ -41,7 +47,7 @@ class FHIRConverter:
         for invalid_claim, rejection_reason in invalid_claims:
             claim_fhir_response = self.converter.claim_response_error(invalid_claim, rejection_reason)
             entry = {
-                'fullUrl': ClaimAiConfig.claim_response_url+'/'+invalid_claim['id'],
+                'fullUrl': ClaimAiConfig.claim_response_url+'/'+str(invalid_claim['id']),
                 'resource': claim_fhir_response
             }
             response_bundle['entry'].append(entry)
