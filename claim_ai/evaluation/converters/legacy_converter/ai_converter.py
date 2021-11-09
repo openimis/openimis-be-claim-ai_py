@@ -6,9 +6,9 @@ from .claim import ClaimConverter
 from .patient import PatientConverter
 from .healthcare import HealthcareServiceConverter
 from .medical_provisions import MedicationConverter, ActivityDefinitionConverter
-from ..evaluation_result import EvaluationResult
-from ..input_models import *
-from ...apps import ClaimAiConfig
+from claim_ai.evaluation.evaluation_result import EvaluationResult
+from claim_ai.evaluation.input_models import *
+from claim_ai.apps import ClaimAiConfig
 
 
 class AiConverter(AbstractConverter):
