@@ -2,7 +2,7 @@ from datetime import datetime
 
 from claim_ai.apps import ClaimAiConfig
 from claim_ai.evaluation import input_models
-from claim_ai.evaluation.converters.legacy_converter.base_converter import AbstractConverter
+from claim_ai.evaluation.converters.base_converter import AbstractConverter
 
 
 class PatientConverter(AbstractConverter):
