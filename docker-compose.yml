@@ -1,0 +1,55 @@
+version: "2.4"
+
+services:
+  rabbitmq:
+    container_name: openimis-rabbitmq
+    # 3-management is the 3.x version including the admin interface. For a barebones image, use 3-alpine
+    image: rabbitmq:3-management
+    networks:
+      - openimis-net
+    ## WARNING:
+    ## exposing the frontend port outside the openimis-net network
+    ## may lead to security issue (depending on your network topology)
+    ports:
+      # Management port, default credentials: guest/guest
+      - 15672:15672
+      # Other RabbitMQ ports
+      - 5672:5672
+      #- 6379:6379
+      - 4369:4369
+  claim-ai:
+    ##restart: always
+    platform: linux
+    container_name: openimis-claim-ai
+    build:
+      context: ../openimis-be-claim_ai_py
+    command: start_asgi
+    environment:
+      - NO_DATABASE_ENGINE=True
+      - NO_DATABASE=True
+      - WSGI_APP=False
+      - ASGI_APP=True
+      - SITE_ROOT=api
+      - CELERY_BROKER_URL=amqp://rabbitmq
+
+      - CHANNELS_HOST=${CHANNELS_HOST}
+      - ASGI_PORT=${ASGI_PORT}
+    networks:
+      - openimis-net
+    ## WARNING:
+    ## exposing the backend port outside the openimis-net network
+    ## may lead to security issue (depending on your network topology)
+    ports:
+      - ${ASGI_PORT}:${ASGI_PORT}
+    volumes: 
+      - "./scaler.pkl:/openimis-be-claim_ai_py/scaler.pkl"
+      - "./Encoder.obj:/openimis-be-claim_ai_py/Encoder.obj"
+      - "./joblib_Voting_Model.pkl:/openimis-be-claim_ai_py/joblib_Voting_Model.pkl"
+      - "./module_config.json:/openimis-be-claim_ai_py/module_config.json"
+
+
+networks:
+  openimis-net:
+
+volumes:
+  claim-ai:
