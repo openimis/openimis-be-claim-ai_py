@@ -1,20 +1,20 @@
 import pandas
-from claim_ai.evaluation.converter import FHIRConverter
 from claim_ai.evaluation.ai_model import AiModel
+from claim_ai.evaluation.converters.r4_fhir_resources.bundle_converter import BundleConverter
 from claim_ai.evaluation.evaluation_result import EvaluationResult
 
 
 class ClaimBundleEvaluation:
-    fhir_converter = FHIRConverter()
+    fhir_converter = BundleConverter()
     ai_model = AiModel()
 
     @classmethod
     def evaluate_bundle(cls, claim_bundle):
-        ai_input, errors = cls.fhir_converter.bundle_ai_input(claim_bundle)
+        ai_input, errors = cls.fhir_converter.to_ai_input(claim_bundle)
         evaluation_result = []
-        input = [item.to_representation(flat=True) for _, claim_input in ai_input for item in claim_input]
-        if input:
-            valid, prediction = cls.ai_model.evaluate_bundle(pandas.DataFrame(input))
+        input_ = [item.to_representation(flat=True) for _, claim_input in ai_input for item in claim_input]
+        if input_:
+            valid, prediction = cls.ai_model.evaluate_bundle(pandas.DataFrame(input_))
             for index, (claim, claim_inputs) in enumerate(ai_input):
                 if not valid[index]:
                     continue

@@ -16,27 +16,27 @@
 #     TEST_HELPER = AiConvertionHelper
 #     CONVERTER = AiConverter()
 #
-#     # def test_conversion(self):
-#     #     ai_converter = converter.FHIRConverter()
-#     #     claim = self.TEST_BUNDLE['entry'][0]['resource']  # Get first claim from test bundle
-#     #
-#     #     test_input = self.CONVERTER.to_ai_input(claim)
-#     #     test_output = [EvaluationResult(claim, evaluation_input, 0) for evaluation_input in test_input]
-#     #     test_output[0].result = 0
-#     #     test_output[1].result = 1
-#     #     generated_output = ai_converter.bundle_ai_output(test_output, [])
-#     #     output_entry = generated_output['entry']
-#     #     output_claim_response = output_entry
-#     #
-#     #     self.assertEqual(len(output_entry), 1)  # Output for single claim
-#     #     self.assertEqual(len(output_entry[0]['resource']['item']), 2)  # Claim bundle have one item and one service
-#     #     self.assertEqual(generated_output['resourceType'], 'Bundle')  # Type bundle
-#     #     self.__assertClaimResponse(claim, output_entry[0])
-#     #
-#     #     accepted = output_entry[0]['resource']['item'][0]
-#     #     rejected = output_entry[0]['resource']['item'][1]
-#     #     self.__assertClaimResponseItem(accepted, claim['item'][0], accepted=True)  # First was accepted
-#     #     self.__assertClaimResponseItem(rejected, claim['item'][1], accepted=False)  # Second was rejected
+#     def test_conversion(self):
+#         ai_converter = converter.FHIRConverter()
+#         claim = self.TEST_BUNDLE['entry'][0]['resource']  # Get first claim from test bundle
+#
+#         test_input = self.CONVERTER.to_ai_input(claim)
+#         test_output = [EvaluationResult(claim, evaluation_input, 0) for evaluation_input in test_input]
+#         test_output[0].result = 0
+#         test_output[1].result = 1
+#         generated_output = ai_converter.bundle_ai_output(test_output, [])
+#         output_entry = generated_output['entry']
+#         output_claim_response = output_entry
+#
+#         self.assertEqual(len(output_entry), 1)  # Output for single claim
+#         self.assertEqual(len(output_entry[0]['resource']['item']), 2)  # Claim bundle have one item and one service
+#         self.assertEqual(generated_output['resourceType'], 'Bundle')  # Type bundle
+#         self.__assertClaimResponse(claim, output_entry[0])
+#
+#         accepted = output_entry[0]['resource']['item'][0]
+#         rejected = output_entry[0]['resource']['item'][1]
+#         self.__assertClaimResponseItem(accepted, claim['item'][0], accepted=True)  # First was accepted
+#         self.__assertClaimResponseItem(rejected, claim['item'][1], accepted=False)  # Second was rejected
 #
 #     def __assertClaimResponse(self, input_claim, output_claim_response):
 #         resource = output_claim_response['resource']

@@ -29,6 +29,26 @@ class ClaimResponseConverterMixin:
             "item": self._build_items(entries_with_evaluation)
         }
 
+    def _build_items(self, entries_with_evaluation):
+        response_items = []
+        for entry in entries_with_evaluation:
+            sequence = 0
+            provided = entry.input
+            result = str(entry.result)  # result is in str type
+            claim = provided.claim
+            if provided.medication:
+                response_item = self.medication_converter\
+                        .to_ai_output(provided.medication, claim, result, sequence)
+                response_items.append(response_item)
+                sequence += 1
+            if provided.activity_definition:
+                response_item = self.activity_definition_converter\
+                    .to_ai_output(provided.activity_definition, claim, result, sequence)
+                response_items.append(response_item)
+                sequence += 1
+
+        return response_items
+
     def claim_response_error(self, claim: dict, error_reason: str):
         return {
             "resourceType": "ClaimResponse",

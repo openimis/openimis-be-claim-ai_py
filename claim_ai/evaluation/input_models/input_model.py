@@ -22,14 +22,22 @@ class BaseDataFrameModel(DataFrameRepresentationMixin, BaseModel):
     def alias_or_default(self, name):
         return self.alias.get(name, name)
 
+    def to_dict(self, use_alias=True):
+        dict_ = {}
+        for k, v in self.__dict__.items():
+            k = self.alias.get(k, k) if use_alias else k
+            dict_[k] = v
+        return dict_
 
-# Medication and ActivityDefinition have same fields
+
 class ProvidedItem(BaseDataFrameModel):
     identifier = None
     unit_price = None
     frequency = None
     use_context = None
     item_level = None
+    quantity = None
+    price_asked = None
 
     alias = {
         'identifier': 'ItemUUID',
@@ -37,7 +45,9 @@ class ProvidedItem(BaseDataFrameModel):
         'frequency': 'ItemFrequency',
         'use_context': 'ItemPatCat',
         'item_level': 'ItemLevel',
-        'type': 'ItemServiceType'
+        'type': 'ItemServiceType',
+        'quantity': 'QtyProvided',
+        'price_asked': 'PriceAsked',
     }
 
 
@@ -45,12 +55,14 @@ class Medication(ProvidedItem):
     def __init__(self, **fields):
         super().__init__(**fields)
         self.type = 'Medication'  # fixed
+        self.item_level = 'M'
 
 
 class ActivityDefinition(ProvidedItem):
     def __init__(self, **fields):
         super().__init__(**fields)
         self.type = 'ActivityDefinition'  # fixed
+        self.item_level = 'S'  # fixed
 
 
 class Claim(BaseDataFrameModel):
@@ -59,8 +71,6 @@ class Claim(BaseDataFrameModel):
     billable_period_to = None
     created = None
     type = None
-    item_quantity = None
-    item_unit_price = None
     diagnosis_0 = None
     diagnosis_1 = None
     enterer = None
@@ -71,8 +81,6 @@ class Claim(BaseDataFrameModel):
         'billable_period_to': 'DateTo',
         'created': 'DateClaimed',
         'type': 'VisitType',
-        'item_quantity': 'QtyProvided',
-        'item_unit_price': 'PriceAsked',
         'diagnosis_0': 'ICDID',
         'diagnosis_1': 'ICDID1',
         'enterer': 'ClaimAdminUUID'
@@ -84,18 +92,24 @@ class Patient(BaseDataFrameModel):
     birth_date = None
     gender = None
     is_head = None
-    poverty_status = None
     location_code = None
-    group = None
 
     alias = {
         'identifier': 'InsureeUUID',
         'birth_date': 'DOB',
         'gender': 'Gender',
         'is_head': 'IsHead',  # This value is not present in the AiModel
-        'poverty_status': 'PovertyStatus',  # This value is not present in the AiModel
         'location_code': 'LocationUUID',
-        'group': 'FamilyUUID'
+    }
+
+
+class Group(BaseDataFrameModel):
+    group = None
+    poverty_status = None
+
+    alias = {
+        'group': 'FamilyUUID',
+        'poverty_status': 'PovertyStatus',  # This value is not present in the AiModel
     }
 
 
@@ -118,6 +132,7 @@ class AiInputModel(BaseDataFrameModel):
     activity_definition = None
     claim = None
     patient = None
+    group = None
     healthcare_service = None
 
     def to_representation(self, flat=False):

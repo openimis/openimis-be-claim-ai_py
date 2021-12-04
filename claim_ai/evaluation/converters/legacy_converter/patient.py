@@ -17,9 +17,9 @@ class PatientConverter(AbstractConverter):
             birth_date=self._get_contained_patient_birth_date(contained_patient),
             gender=self._get_contained_patient_gender(contained_patient),
             is_head=self._get_contained_patient_is_head(contained_patient),
-            poverty_status=self._get_contained_patient_poverty_status(contained_patient),
+            #poverty_status=self._get_contained_patient_poverty_status(contained_patient),
             location_code=self._get_contained_patient_location_code(contained_patient),
-            group=self._get_contained_patient_group(contained_patient),
+            # group=self._get_contained_patient_group(contained_patient),
         )
         return patient
 
