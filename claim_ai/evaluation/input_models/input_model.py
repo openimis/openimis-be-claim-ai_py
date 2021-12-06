@@ -55,14 +55,12 @@ class Medication(ProvidedItem):
     def __init__(self, **fields):
         super().__init__(**fields)
         self.type = 'Medication'  # fixed
-        self.item_level = 'M'
 
 
 class ActivityDefinition(ProvidedItem):
     def __init__(self, **fields):
         super().__init__(**fields)
         self.type = 'ActivityDefinition'  # fixed
-        self.item_level = 'S'  # fixed
 
 
 class Claim(BaseDataFrameModel):

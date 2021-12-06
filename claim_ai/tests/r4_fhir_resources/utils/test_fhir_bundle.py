@@ -755,7 +755,20 @@ socket_data = {
                         }
                     ],
                     "url": "https://openimis.github.io/openimis_fhir_r4_ig/StructureDefinition/medication-usage-context"
-                }
+                },
+                {
+                    "url": "https://openimis.github.io/openimis_fhir_r4_ig/StructureDefinition/medication-level",
+                    "valueCodeableConcept": {
+                        "coding": [
+                            {
+                                "system": "https://openimis.github.io/openimis_fhir_r4_ig/ValueSet/medication-level",
+                                "code": "M",
+                                "display": "Medication"
+                            }
+                        ],
+                        "text": "Medication"
+                    }
+                },
             ],
             "identifier": [
                 {
@@ -803,6 +816,19 @@ socket_data = {
                     "valueMoney": {
                         "value": 400.0,
                         "currency": "$"
+                    }
+                },
+                {
+                    "url": "https://openimis.github.io/openimis_fhir_r4_ig/StructureDefinition/activity-definition-level",
+                    "valueCodeableConcept": {
+                        "coding": [
+                            {
+                                "system": "https://openimis.github.io/openimis_fhir_r4_ig/ValueSet/activity-definition-level",
+                                "code": "D",
+                                "display": "Day of stay"
+                            }
+                        ],
+                        "text": "Day of stay"
                     }
                 }
             ],
@@ -915,6 +941,19 @@ socket_data = {
                     "valueMoney": {
                         "value": 1250.0,
                         "currency": "$"
+                    }
+                },
+                {
+                    "url": "https://openimis.github.io/openimis_fhir_r4_ig/StructureDefinition/activity-definition-level",
+                    "valueCodeableConcept": {
+                        "coding": [
+                            {
+                                "system": "https://openimis.github.io/openimis_fhir_r4_ig/ValueSet/activity-definition-level",
+                                "code": "S",
+                                "display": "Simple Service"
+                            }
+                        ],
+                        "text": "Simple Service"
                     }
                 }
             ],

@@ -35,7 +35,7 @@ class ConverterHelper:
     EXPECTED_SERVICE_ENTRY_1 = {
         'ItemUUID': '90',
         'ItemPrice': 400.0,
-        'ItemLevel': 'S',
+        'ItemLevel': 'D',
         'ItemFrequency': 1,
         'ItemPatCat': 6,  # Adult, female
         'ItemServiceType': 'ActivityDefinition',

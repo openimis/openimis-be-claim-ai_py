@@ -93,12 +93,12 @@ class MedicalProvision(GenericContainedResourceConverter, ABC):
     def _fhir_repr_to_ai_input(self, fhir_repr: FhirClaimInformation) -> dict:
         contained_part = fhir_repr.fhir_resource
         claim_field = fhir_repr.claim_resource
-
         return {
             'identifier': self._get_identifier(contained_part),
             'unit_price': self._get_unit_price(contained_part),
             'frequency': self._get_frequency(contained_part),
             'use_context': self._get_use_context(contained_part),
+            'item_level': self._get_claim_item_level(contained_part),
             'quantity': self._get_claim_item_quantity(contained_part, claim_field),
             'price_asked': self._get_claim_item_unit_price(contained_part, claim_field),
         }
@@ -172,3 +172,11 @@ class MedicalProvision(GenericContainedResourceConverter, ABC):
     @abstractmethod
     def _get_use_context_ext(self, provided):
         raise NotImplementedError()
+
+    def _get_claim_item_level(self, fhir_repr):
+        return next(
+            (ext.valueCodeableConcept.coding[0].code for ext in fhir_repr.extension
+                if ext.url.endswith('level')), None
+        )
+
+
