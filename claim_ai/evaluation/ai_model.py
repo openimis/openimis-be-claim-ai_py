@@ -16,10 +16,31 @@ class AiModel:
 
     FIRST_DATE = datetime.strptime(ClaimAiConfig.first_date, ClaimAiConfig.date_format)
 
-    def __init__(self):
-        self.model = self._load_model()
-        self.encoder = self._load_encoder()
-        self.scaler = self._load_scaler()
+    # Properties are required to by lazy initialized as
+    # instance of class is created during the module
+    # installation. Installation breaks in case of missing
+    # .pkl files required for model/scaler/encoder.
+
+    @property
+    def model(self):
+        if getattr(self, '__model', None) is None:
+            my_data = self._load_model()
+            self.__model = my_data
+        return self.__model
+
+    @property
+    def encoder(self):
+        if getattr(self, '__encoder', None) is None:
+            my_data = self._load_encoder()
+            self.__encoder = my_data
+        return self.__encoder
+
+    @property
+    def scaler(self):
+        if getattr(self, '__scaler', None) is None:
+            my_data = self._load_scaler()
+            self.__scaler = my_data
+        return self.__scaler
 
     def evaluate_bundle(self, input_bundle):
         index, clean_input = self.sanity_check(input_bundle)
