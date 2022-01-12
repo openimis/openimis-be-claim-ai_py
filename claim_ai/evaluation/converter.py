@@ -5,6 +5,7 @@ import traceback
 import logging
 
 from claim_ai.evaluation.converters import AiConverter
+from claim_ai.evaluation.converters.r4_fhir_resources.bundle_converter import BundleConverter
 from claim_ai.evaluation.evaluation_result import EvaluationResult
 from claim_ai.apps import ClaimAiConfig
 

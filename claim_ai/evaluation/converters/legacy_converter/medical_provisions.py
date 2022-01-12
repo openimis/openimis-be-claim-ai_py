@@ -144,3 +144,5 @@ class ActivityDefinitionConverter(BaseProvidedConverter):
             return context['valueCodeableConcept']['coding'][0]['code']
         else:
             return None
+
+

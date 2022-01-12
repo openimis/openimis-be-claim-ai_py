@@ -1,5 +1,2 @@
-from .claim import ClaimConverter
-from .healthcare import HealthcareServiceConverter
-from .medical_provisions import MedicationConverter, ActivityDefinitionConverter
-from .patient import PatientConverter
-from .ai_converter import AiConverter
+from .legacy_converter import AiConverter as LegacyConverter
+from .r4_fhir_resources.ai_converter import AiConverter

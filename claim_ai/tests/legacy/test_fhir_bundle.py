@@ -123,9 +123,9 @@ socket_data = {
                                                 ]
                                             },
                                             "use": "usual",
-                                            "value": "c47f2b1e-88bd-4b7d-bfbc-e5a4213145fd"
+                                            "value": "00B4F099-6122-4327-B033-0872FB1027D8"
                                         },
-                                        "reference": "Medication/c47f2b1e-88bd-4b7d-bfbc-e5a4213145fd",
+                                        "reference": "Medication/00B4F099-6122-4327-B033-0872FB1027D8",
                                         "type": "Medication"
                                     }
                                 }
@@ -159,9 +159,9 @@ socket_data = {
                                                 ]
                                             },
                                             "use": "usual",
-                                            "value": "f27fe91a-c626-4dde-ae02-88664e37edfd"
+                                            "value": "9FD65C19-6889-46D8-9572-A586D17CF286"
                                         },
-                                        "reference": "ActivityDefinition/f27fe91a-c626-4dde-ae02-88664e37edfd",
+                                        "reference": "ActivityDefinition/9FD65C19-6889-46D8-9572-A586D17CF286",
                                         "type": "ActivityDefinition"
                                     }
                                 }

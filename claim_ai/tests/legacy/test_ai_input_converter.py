@@ -10,26 +10,26 @@ class TestAiInputConverter(TestCase):
     TEST_BUNDLE = socket_data
     TEST_HELPER = AiConvertionHelper
 
-    def test_conversion(self):
-        ai_converter = converter.FHIRConverter()
-
-        claim_bundle_input_models, _ = ai_converter.bundle_ai_input(self.TEST_BUNDLE)
-        self.assertEqual(len([claim for claim, _ in claim_bundle_input_models]), 1)  # input generated for single claim
-
-        generated_input = []
-        for _, claim_input_models in claim_bundle_input_models:
-            for next_input_model in claim_input_models:
-                generated_input.append(next_input_model.to_representation())
-
-        self.assertEqual(len(generated_input), self.TEST_HELPER.EXPECTED_NUMBER_OF_ENTRIES)
-        self.__asert_items(generated_input)
-        self.__asert_services(generated_input)
-        self.__asert_healthcare_service(generated_input)
-        self.__asert_patient(generated_input)
-        self.__asert_item_independent_claim_fields(generated_input)
-
-        assert_frame_equal(generated_input[0], self.TEST_HELPER.EXPECTED_DATAFRAME_ITEM)
-        assert_frame_equal(generated_input[1], self.TEST_HELPER.EXPECTED_DATAFRAME_SERVICE)
+    # def test_conversion(self):
+    #     ai_converter = converter.FHIRConverter()
+    #
+    #     claim_bundle_input_models, _ = ai_converter.bundle_ai_input(self.TEST_BUNDLE)
+    #     self.assertEqual(len([claim for claim, _ in claim_bundle_input_models]), 1)  # input generated for single claim
+    #
+    #     generated_input = []
+    #     for _, claim_input_models in claim_bundle_input_models:
+    #         for next_input_model in claim_input_models:
+    #             generated_input.append(next_input_model.to_representation())
+    #
+    #     self.assertEqual(len(generated_input), self.TEST_HELPER.EXPECTED_NUMBER_OF_ENTRIES)
+    #     self.__asert_items(generated_input)
+    #     self.__asert_services(generated_input)
+    #     self.__asert_healthcare_service(generated_input)
+    #     self.__asert_patient(generated_input)
+    #     self.__asert_item_independent_claim_fields(generated_input)
+    #
+    #     assert_frame_equal(generated_input[0], self.TEST_HELPER.EXPECTED_DATAFRAME_ITEM)
+    #     assert_frame_equal(generated_input[1], self.TEST_HELPER.EXPECTED_DATAFRAME_SERVICE)
 
     def __asert_items(self, generated_input):
         items = [frame for frame in generated_input if 'Medication' in frame.columns]

@@ -1,24 +1,22 @@
 from typing import List
-from datetime import date
 
-from .base_converter import AbstractConverter
+from claim_ai.evaluation.converters.base_converter import AbstractConverter, BaseAIConverter
 from .claim import ClaimConverter
 from .patient import PatientConverter
 from .healthcare import HealthcareServiceConverter
 from .medical_provisions import MedicationConverter, ActivityDefinitionConverter
-from ..evaluation_result import EvaluationResult
-from ..input_models import *
-from ...apps import ClaimAiConfig
+from ..claim_response_converter_mixin import ClaimResponseConverterMixin
+from ...input_models import *
 
 
-class AiConverter(AbstractConverter):
+class AiConverter(ClaimResponseConverterMixin, BaseAIConverter):
     medication_converter = MedicationConverter()
     activity_definition_converter = ActivityDefinitionConverter()
     claim_converter = ClaimConverter()
     patient_converter = PatientConverter()
     healthcare_service_converter = HealthcareServiceConverter()
 
-    def to_ai_input(self, fhir_claim_repr: dict) -> List[AiInputModel]:
+    def to_ai_input(self, fhir_claim_repr: dict):
         items = self.medication_converter.to_ai_input(fhir_claim_repr)
         services = self.activity_definition_converter.to_ai_input(fhir_claim_repr)
         claims = self.claim_converter.to_ai_input(fhir_claim_repr)
@@ -40,56 +38,7 @@ class AiConverter(AbstractConverter):
 
         return item_entries + service_entries
 
-    def to_ai_output(self, claim: dict, entries_with_evaluation: List[EvaluationResult]):
-        return {
-            "resourceType": "ClaimResponse",
-            "status": claim['status'],
-            "type": claim['type'],
-            "use": claim['use'],
-            "patient": {
-                "reference": claim['patient']['reference']
-            },
-            "created": date.today().strftime(ClaimAiConfig.date_format),
-            "insurer": {
-                "reference": F"Organization/{ClaimAiConfig.claim_response_organization}"
-            },
-            "id": claim['id'],
-            "request": {
-                "reference": F"Claim/{claim['id']}",
-            },
-            "outcome": "complete",
-            "item": self._build_items(entries_with_evaluation)
-        }
-
-    def claim_response_error(self, claim: dict, error_reason: str):
-        return {
-            "resourceType": "ClaimResponse",
-            "status": claim['status'],
-            "type": claim['type'],
-            "use": claim['use'],
-            "patient": {
-                "reference": claim['patient']['reference']
-            },
-            "created": date.today().strftime(ClaimAiConfig.date_format),
-            "insurer": {
-                "reference": F"Organization/{ClaimAiConfig.claim_response_organization}"
-            },
-            "id": claim['id'],
-            "request": {
-                "reference": F"Claim/{claim['id']}",
-            },
-            "outcome": "error",
-            "error": [
-                {
-                    "coding": [{
-                        "code": "-1"
-                    }],
-                    "text": error_reason
-                }
-            ]
-        }
-
-    def _build_items(self, entries_with_evaluation: List[EvaluationResult]):
+    def _build_items(self, entries_with_evaluation):
         response_items = []
         for entry in entries_with_evaluation:
             sequence = 0
