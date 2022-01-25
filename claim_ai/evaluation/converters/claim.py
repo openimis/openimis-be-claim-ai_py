@@ -47,8 +47,9 @@ class ClaimConverter(AbstractConverter):
     def _get_diagnosis_reference(self, claim):
         diagnoses = claim['diagnosis']
         references = [
-            d['diagnosisReference']['identifier'] for d in diagnoses
-            if d['type'][0]['coding'][0]['code'] in ['icd_0', 'icd_1']]
+            d['diagnosisReference']['reference'].split('/')[1] for d in diagnoses
+            if d['type'][0]['coding'][0]['code'] in ['icd_0', 'icd_1']
+        ]
 
         return tuple(references) if len(references) == 2 else (references[0], references[0])
 
