@@ -66,9 +66,13 @@ class AiModel:
 
         values = ['Condition3', 'Condition5', 'Clean data']
         input['SanityCheck'] = np.select(conditions, values)
-        selected_cols = ['ItemUUID', 'ClaimUUID', 'ClaimAdminUUID', 'HFUUID', 'LocationUUID', 'HFLocationUUID',
-                         'InsureeUUID',
-                         'FamilyUUID', 'ICDID', 'ICDID1',
+        input.rename(columns={'ItemUUID': 'ItemID',
+                            'ClaimUUID': 'ClaimID', 'ClaimAdminUUID': 'ClaimAdminId',
+                            'HFUUID': 'HFID', 'LocationUUID': 'LocationId', 'HFLocationUUID': 'HFLocationId',
+                            'InsureeUUID': 'InsureeID', 'FamilyUUID': 'FamilyID'}, inplace=True)
+
+        selected_cols = ['ItemID', 'ClaimID', 'ClaimAdminId', 'HFID',
+                         'LocationId', 'HFLocationId', 'InsureeID', 'FamilyID', 'ICDID', 'ICDID1',
                          'QtyProvided', 'PriceAsked', 'ItemPrice',
                          'ItemFrequency', 'ItemPatCat', 'ItemLevel',
                          'DateFrom', 'DateTo', 'DateClaimed', 'DOB',
@@ -95,10 +99,7 @@ class AiModel:
             clean_input[i] = (clean_input[i] - self.FIRST_DATE).dt.days
 
         # 4.2 Convert text or other types features to numeric ones
-        cat_features = ['ItemUUID', 'ClaimUUID', 'ClaimAdminUUID', 'HFUUID',
-                        'LocationUUID', 'HFLocationUUID', 'InsureeUUID',
-                        'FamilyUUID', 'ItemLevel', 'VisitType', 'HFLevel',
-                        'HFCareType', 'Gender', 'ItemServiceType']
+        cat_features = ['ItemLevel', 'VisitType', 'HFLevel', 'HFCareType', 'Gender', 'ItemServiceType']
 
         encoded_input = clean_input.copy()
         transform_input = clean_input[cat_features]
@@ -110,9 +111,8 @@ class AiModel:
             return encoded_input
 
     def normalize_input(self, encoded_input):
-        selected_cols = ['ItemUUID', 'ClaimUUID', 'ClaimAdminUUID', 'HFUUID', 'LocationUUID', 'HFLocationUUID',
-                         'InsureeUUID',
-                         'FamilyUUID', 'ICDID', 'ICDID1',
+        selected_cols = ['ItemID', 'ClaimID', 'ClaimAdminId', 'HFID',
+                         'LocationId', 'HFLocationId', 'InsureeID', 'FamilyID', 'ICDID', 'ICDID1',
                          'QtyProvided', 'PriceAsked', 'ItemPrice',
                          'ItemFrequency', 'ItemPatCat', 'ItemLevel',
                          'DateFrom', 'DateTo', 'DateClaimed', 'Age',
@@ -120,7 +120,7 @@ class AiModel:
                          'Gender', 'ItemServiceType']
 
         # Normalization
-        return pandas.DataFrame(data=self.scaler.transform(encoded_input), columns=selected_cols)
+        return pandas.DataFrame(data=self.scaler.transform(encoded_input[selected_cols]), columns=selected_cols)
 
     def predict(self, normalized_input):
         return self.model.predict(normalized_input)
