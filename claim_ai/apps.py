@@ -20,7 +20,11 @@ DEFAULT_CONFIG = {
     'claim_response_organization': 'openIMIS-Claim-AI',
     'date_format': '%Y-%m-%d',
     'first_date': '2016-01-01',
-    'disable_rule_engine_validation': False
+    'disable_rule_engine_validation': False,
+    'evaluation_perms': ['111001'],
+    'create_evaluation_perms': ['111002'],
+    'update_evaluation_perms': ['111010'],
+    'delete_evaluation_perms': ['111004'],
 }
 
 
@@ -51,6 +55,11 @@ class ClaimAiConfig(AppConfig):
     date_format = DEFAULT_CONFIG['date_format']
     first_date = DEFAULT_CONFIG['first_date']
     disable_rule_engine_validation = DEFAULT_CONFIG['disable_rule_engine_validation']
+
+    evaluation_perms = DEFAULT_CONFIG['evaluation_perms']
+    create_evaluation_perms = DEFAULT_CONFIG['create_evaluation_perms']
+    update_evaluation_perms = DEFAULT_CONFIG['update_evaluation_perms']
+    delete_evaluation_perms = DEFAULT_CONFIG['delete_evaluation_perms']
 
     def _configure_perms(self, cfg):
         for config, config_value in cfg.items():
