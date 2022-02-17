@@ -36,15 +36,22 @@ class BundleEvaluationPermissions(DjangoModelPermissions):
         return self.perms_map[method]
 
 
-class ClaimBundleEvaluationViewSet(GenericViewSet, mixins.RetrieveModelMixin, mixins.CreateModelMixin):
-    """
-    View to list all users in the system.
-
-    * Requires token authentication.
-    """
+class BaseEvaluationViewSet(GenericViewSet, mixins.RetrieveModelMixin, mixins.CreateModelMixin):
     authentication_classes = [CsrfExemptSessionAuthentication] + APIView.settings.DEFAULT_AUTHENTICATION_CLASSES
     permission_classes = [BundleEvaluationPermissions]
     serializer_class = ClaimBundleEvaluationSerializer
+
+    def get_queryset(self):
+        return ClaimBundleEvaluation.objects.filter(is_deleted=False)
+
+    def get_serializer(self, *args, **kwargs):
+        """ if an array is passed, set serializer to many """
+        if isinstance(kwargs.get('data', {}), list):
+            kwargs['many'] = True
+        return super(BaseEvaluationViewSet, self).get_serializer(*args, **kwargs)
+
+
+class ClaimBundleEvaluationViewSet(BaseEvaluationViewSet):
     lookup_field = 'evaluation_hash'
 
     def get_queryset(self):
@@ -54,16 +61,13 @@ class ClaimBundleEvaluationViewSet(GenericViewSet, mixins.RetrieveModelMixin, mi
         """ if an array is passed, set serializer to many """
         if isinstance(kwargs.get('data', {}), list):
             kwargs['many'] = True
+
+        wait_ = self.request.query_params.get('wait_for_evaluation', 'False').lower() == 'true'
+        kwargs['wait'] = wait_
         return super(ClaimBundleEvaluationViewSet, self).get_serializer(*args, **kwargs)
 
 
-class ClaimEvaluationViewSet(ClaimBundleEvaluationViewSet):
-    """
-    View to list all users in the system.
-
-    * Requires token authentication.
-    """
-    serializer_class = ClaimBundleEvaluationSerializer
+class ClaimEvaluationViewSet(BaseEvaluationViewSet):
     lookup_field = 'claim__uuid'
 
     def get_queryset(self):
@@ -73,4 +77,8 @@ class ClaimEvaluationViewSet(ClaimBundleEvaluationViewSet):
         """ if an array is passed, set serializer to many """
         if isinstance(kwargs.get('data', {}), list):
             kwargs['many'] = True
+
+        # If this argument is set - instead of using shared task evaluation is done during reuqest
+        wait_ = self.request.query_params.get('wait_for_evaluation', 'False').lower() == 'true'
+        kwargs['wait'] = wait_
         return super(ClaimEvaluationViewSet, self).get_serializer(*args, **kwargs)

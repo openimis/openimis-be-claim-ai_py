@@ -1,8 +1,6 @@
-from typing import List
-
 from fhir.resources.medication import Medication as MedicationFHIR
 from claim_ai.evaluation.converters.r4_fhir_resources.fhir_converters.abstract_converters import MedicalProvision
-from claim_ai.evaluation.input_models import BaseDataFrameModel, Medication as MedicationAI
+from claim_ai.evaluation.input_models import Medication as MedicationAI
 
 
 class MedicationConverter(MedicalProvision):

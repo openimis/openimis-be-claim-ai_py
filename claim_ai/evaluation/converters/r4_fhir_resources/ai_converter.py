@@ -1,7 +1,7 @@
 from claim_ai.evaluation.converters.base_converter import BaseAIConverter
 from claim_ai.evaluation.converters.r4_fhir_resources.fhir_converters import ClaimConverter, MedicationConverter, \
     ActivityDefinitionConverter, PatientConverter, GroupConverter, OrganizationConverter
-from claim_ai.evaluation.input_models import AiInputModel
+from claim_ai.evaluation.input_models import FhirAiInputModel
 
 
 class AiConverter(BaseAIConverter):
@@ -29,7 +29,7 @@ class AiConverter(BaseAIConverter):
         }
 
     def __create_ai_input(self, fields: dict):
-        return AiInputModel(
+        return FhirAiInputModel(
             **fields
         )
 

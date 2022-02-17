@@ -8,16 +8,16 @@ from fhir.resources.bundle import Bundle
 
 from claim_ai.evaluation.evaluation_result import EvaluationResult
 from claim_ai.apps import ClaimAiConfig
-from claim_ai.evaluation.input_models import AiInputModel
+from claim_ai.evaluation.input_models import FhirAiInputModel
 from claim_ai.models import ClaimBundleEvaluation, SingleClaimEvaluationResult, ClaimProvisionEvaluationResult
 
 logger = logging.getLogger(__name__)
 
-V_IN = TypeVar('V_IN')  # Valid bundle input
-IV_IN = TypeVar('IV_IN')  # Invalid bundle input
-CLAIM_TYPE = TypeVar('CLAIM_TYPE')  # Valid bundle input
-ITEM_TYPE = TypeVar('ITEM_TYPE')  # Invalid bundle input
-ERROR_TYPE = TypeVar('ERROR_TYPE')  # Invalid bundle input
+V_IN = TypeVar('V_IN')  # Valid bundle input_bundle
+IV_IN = TypeVar('IV_IN')  # Invalid bundle input_bundle
+CLAIM_TYPE = TypeVar('CLAIM_TYPE')  # Valid bundle input_bundle
+ITEM_TYPE = TypeVar('ITEM_TYPE')  # Invalid bundle input_bundle
+ERROR_TYPE = TypeVar('ERROR_TYPE')  # Invalid bundle input_bundle
 
 
 class BaseClaimResponseBundleBuilder(Generic[V_IN, IV_IN, CLAIM_TYPE, ITEM_TYPE, ERROR_TYPE], ABC):
@@ -26,6 +26,9 @@ class BaseClaimResponseBundleBuilder(Generic[V_IN, IV_IN, CLAIM_TYPE, ITEM_TYPE,
 
     def build_fhir_bundle(self, valid_claims_output: V_IN, invalid_valid_claims: IV_IN):
         return Bundle(**self.build_fhir_bundle_dict(valid_claims_output, invalid_valid_claims))
+
+    def build_valid(self, valid_claims_output: V_IN):
+        return Bundle(**self.build_fhir_bundle_dict(valid_claims_output, None))
 
     def build_fhir_bundle_dict(self, valid_claims_output: V_IN, invalid_valid_claims: IV_IN):
         return {
@@ -76,7 +79,7 @@ class BaseClaimResponseBundleBuilder(Generic[V_IN, IV_IN, CLAIM_TYPE, ITEM_TYPE,
 
 
 class EvaluationResultClaimResponseBundleBuilder(
-    BaseClaimResponseBundleBuilder[Iterable[EvaluationResult], Iterable[Tuple[dict, str]], AiInputModel, dict, str]
+    BaseClaimResponseBundleBuilder[Iterable[EvaluationResult], Iterable[Tuple[dict, str]], FhirAiInputModel, dict, str]
 ):
     def _get_resource_url_identifier(self, input_element: dict):
         return input_element['id']

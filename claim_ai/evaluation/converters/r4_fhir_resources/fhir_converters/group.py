@@ -1,10 +1,8 @@
-from typing import Type
-
 from fhir.resources.group import Group as GroupFHIR
 from claim_ai.evaluation.converters.r4_fhir_resources.fhir_converters.abstract_converters import \
     GenericContainedResourceConverter
 from claim_ai.evaluation.converters.r4_fhir_resources.fhir_converters.dataclasses import FhirClaimInformation
-from claim_ai.evaluation.input_models import BaseDataFrameModel, Group as GroupAI
+from claim_ai.evaluation.input_models import Group as GroupAI
 
 
 class GroupConverter(GenericContainedResourceConverter):

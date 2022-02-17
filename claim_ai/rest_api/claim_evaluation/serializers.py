@@ -16,6 +16,7 @@ class ClaimBundleEvaluationSerializer(ClaimSerializer):
     """
 
     def __init__(self, *args, **kwargs):
+        self._wait = kwargs.pop('wait')
         super().__init__(*args, **kwargs)
         self.request_handler = RequestToInternalValueHandler(self.fhirConverter, self.get_audit_user_id())
         self.response_handler = ResponseHandler()
@@ -62,7 +63,8 @@ class ClaimBundleEvaluationSerializer(ClaimSerializer):
         unique_contained_by_id = {}
         for claim in bundle['entry']:
             for contained_source in claim['resource'].get('contained', []):
-                unique_contained_by_id[contained_source['id']] = contained_source
+                unique_key = F"{contained_source['resourceType']}_{contained_source['id']}"
+                unique_contained_by_id[unique_key] = contained_source
         return unique_contained_by_id.values()
 
     def _create_contained_from_claim(self, fhir_claim_dict: dict):
@@ -83,10 +85,12 @@ class ClaimBundleEvaluationSerializer(ClaimSerializer):
         return new_claim
 
     def _add_claims_for_evaluation_query(self, imis_claims, evaluation_bundle_hash):
-        # TODO: Instead of using FHIR, use database entries
         evaluation_data = self.evaluation_bundle_manager \
             .create_idle_evaluation_bundle(imis_claims, evaluation_bundle_hash)
 
-        query_input = [self.__cast_to_fhir_with_contained(claim) for claim in imis_claims]
-        self.evaluation_bundle_manager.query_claims_for_evaluation(query_input)
-        return evaluation_data
+        if not self._wait:
+            self.evaluation_bundle_manager.query_claims_for_evaluation(evaluation_data)
+            return evaluation_data
+        else:
+            evaluation = self.evaluation_bundle_manager.evaluate_bundle(evaluation_data)
+            return evaluation

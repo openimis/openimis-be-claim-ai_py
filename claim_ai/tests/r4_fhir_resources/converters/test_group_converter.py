@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from claim_ai.evaluation.converters.r4_fhir_resources.fhir_converters.group import GroupConverter
+from claim_ai.evaluation.converters.r4_fhir_resources.fhir_converters import GroupConverter
 from claim_ai.tests.r4_fhir_resources.converters.base_case import BaseConverterTestCaseMixin
 
 

@@ -6,15 +6,21 @@ from medical.models import Item, Service
 
 import core
 from claim.models import ClaimItem, ClaimService
-from claim_ai.evaluation.input_models import AiInputModel, Medication, ActivityDefinition
+from claim_ai.evaluation.input_models import FhirAiInputModel, Medication, ActivityDefinition
 
 
 class BaseAdjudicationBuilder(ABC):
     _ACCEPTED_RESULT_CODES = (
-        "-1",  # Undefined
+        "-1",  # Not Adjudicated
         "0",  # Accepted
         "1"  # Rejected
     )
+
+    _RESULT_TEXTS = {
+        "-1": 'not adjudicated',
+        "0":  'accepted',
+        "1": 'rejected'
+    }
 
     def build_claim_response_item_adjudication(self, evaluated_entry, evaluation_result, sequence=1):
         return {
@@ -77,7 +83,7 @@ class BaseAdjudicationBuilder(ABC):
         }
 
     def _build_reason(self, evaluation_result_code):
-        result_text = 'accepted' if evaluation_result_code == '0' else 'rejected'
+        result_text = self._RESULT_TEXTS.get(evaluation_result_code) or 'undefined'
         return {
             "coding": [
                 {
@@ -96,7 +102,7 @@ class BaseAdjudicationBuilder(ABC):
 
 class AiInputModelAdjudicationBuilder(BaseAdjudicationBuilder):
 
-    def _get_provision_type(self, evaluation_result: AiInputModel) -> str:
+    def _get_provision_type(self, evaluation_result: FhirAiInputModel) -> str:
         provision = self._get_provision(evaluation_result)
         return provision.type
 

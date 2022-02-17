@@ -1,12 +1,11 @@
-from typing import List
 from datetime import datetime
 
 from fhir.resources.claim import Claim as ClaimFHIR
 
 from claim_ai.apps import ClaimAiConfig
 from claim_ai.evaluation.converters.r4_fhir_resources.fhir_converters.abstract_converters import \
-    GenericContainedResourceConverter, FHIRResourceConverter
-from claim_ai.evaluation.input_models import BaseDataFrameModel, Claim as ClaimAI
+    FHIRResourceConverter
+from claim_ai.evaluation.input_models import Claim as ClaimAI
 
 
 class ClaimConverter(FHIRResourceConverter):

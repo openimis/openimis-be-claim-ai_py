@@ -1,15 +1,3 @@
-import json
-import os
-from datetime import datetime
-
-from django.conf import settings
-from rest_framework.test import APITestCase
-from rest_framework import status
-
-from api_fhir_r4.tests import GenericFhirAPITestMixin
-from api_fhir_r4.tests.test_api_claim_contained import ClaimAPIContainedTestBaseMixin
-from api_fhir_r4.configurations import GeneralConfiguration
-from claim_ai.models import ClaimBundleEvaluation
 from claim_ai.tests.r4_fhir_resources.api.test_api_claim_bundle import ClaimBundleAPITests
 
 

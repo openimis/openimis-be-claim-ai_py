@@ -1,33 +1,6 @@
 import pandas
 
-from .mixins import DataFrameRepresentationMixin
-
-
-class BaseModel:
-
-    def __init__(self, **fields):
-        for field, value in fields.items():
-            if hasattr(self, field):
-                setattr(self, field, value)
-            else:
-                raise ValueError(F"Field {field} not available for class {self.__class__}")
-
-    def to_representation(self) -> pandas.DataFrame:
-        raise NotImplementedError("to_ai_input_representation not implemented")
-
-
-class BaseDataFrameModel(DataFrameRepresentationMixin, BaseModel):
-    alias = {}
-
-    def alias_or_default(self, name):
-        return self.alias.get(name, name)
-
-    def to_dict(self, use_alias=True):
-        dict_ = {}
-        for k, v in self.__dict__.items():
-            k = self.alias.get(k, k) if use_alias else k
-            dict_[k] = v
-        return dict_
+from .base import BaseDataFrameModel
 
 
 class ProvidedItem(BaseDataFrameModel):
@@ -96,7 +69,7 @@ class Patient(BaseDataFrameModel):
         'identifier': 'InsureeUUID',
         'birth_date': 'DOB',
         'gender': 'Gender',
-        'is_head': 'IsHead',  # This value is not present in the AiModel
+        'is_head': 'IsHead',  # This value is not present in the AiPredictor
         'location_code': 'LocationUUID',
     }
 
@@ -107,7 +80,7 @@ class Group(BaseDataFrameModel):
 
     alias = {
         'group': 'FamilyUUID',
-        'poverty_status': 'PovertyStatus',  # This value is not present in the AiModel
+        'poverty_status': 'PovertyStatus',  # This value is not present in the AiPredictor
     }
 
 
@@ -125,7 +98,7 @@ class HealthcareService(BaseDataFrameModel):
     }
 
 
-class AiInputModel(BaseDataFrameModel):
+class FhirAiInputModel(BaseDataFrameModel):
     medication = None
     activity_definition = None
     claim = None

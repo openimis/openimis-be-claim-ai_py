@@ -10,6 +10,6 @@ class AdjudicationBuilderFactory(GenericBuilderFactory):
         return {}
 
     REGISTERED_BUILDERS = {
-        'AiInputModel': AiInputModelAdjudicationBuilder,
+        'FhirAiInputModel': AiInputModelAdjudicationBuilder,
         'ClaimProvisionEvaluationResult': ClaimProvisionAdjudicationBuilder
     }

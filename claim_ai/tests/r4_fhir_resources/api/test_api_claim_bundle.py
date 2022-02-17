@@ -1,10 +1,13 @@
 import json
 import os
 from datetime import datetime
+from unittest import mock
+from unittest.mock import PropertyMock, MagicMock
 
 from django.conf import settings
 from rest_framework.test import APITestCase
 from rest_framework import status
+from sklearn import preprocessing
 
 from api_fhir_r4.tests import GenericFhirAPITestMixin
 from api_fhir_r4.tests.test_api_claim_contained import ClaimAPIContainedTestBaseMixin
@@ -53,7 +56,21 @@ class ClaimBundleAPITests(ClaimAPIContainedTestBaseMixin, GenericFhirAPITestMixi
         response = self.client.get(url, data=None, format='json')
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
-    def test_post_should_create_correctly(self):
+    @mock.patch("claim_ai.evaluation.preprocessors.v2_preprocessor.AbstractAiInputDataFramePreprocessor.encoder",
+                new_callable=PropertyMock)
+    @mock.patch("claim_ai.evaluation.preprocessors.v2_preprocessor.AbstractAiInputDataFramePreprocessor.scaler",
+                new_callable=PropertyMock)
+    @mock.patch("claim_ai.evaluation.stored_resource_evaluation.AiPredictor.model", new_callable=PropertyMock)
+    def test_post_should_create_correctly(self, model_mock, mocked_scaler, mocked_encoder):
+        mocked_scaler.return_value = MagicMock()
+        mocked_scaler.return_value.transform = self.mocked_scaler
+
+        mocked_encoder.return_value = MagicMock()
+        mocked_encoder.return_value.transform = self.mocked_encoder
+
+        model_mock.return_value = MagicMock()
+        model_mock.return_value.predict = self.mocked_predict
+
         create_response = self._create_from_test_data()
         response_json = create_response.json()
         # Check if was created
@@ -63,7 +80,20 @@ class ClaimBundleAPITests(ClaimAPIContainedTestBaseMixin, GenericFhirAPITestMixi
         # Check if contained resources were created
         self._assert_contained()
 
-    def test_get_should_return_200_claim_with_contained(self):
+    @mock.patch("claim_ai.evaluation.preprocessors.v2_preprocessor.AbstractAiInputDataFramePreprocessor.encoder",
+                new_callable=PropertyMock)
+    @mock.patch("claim_ai.evaluation.preprocessors.v2_preprocessor.AbstractAiInputDataFramePreprocessor.scaler",
+                new_callable=PropertyMock)
+    @mock.patch("claim_ai.evaluation.stored_resource_evaluation.AiPredictor.model", new_callable=PropertyMock)
+    def test_get_should_return_200_claim_with_contained(self, model_mock, mocked_scaler, mocked_encoder):
+        mocked_scaler.return_value = MagicMock()
+        mocked_scaler.return_value.transform = self.mocked_scaler
+
+        mocked_encoder.return_value = MagicMock()
+        mocked_encoder.return_value.transform = self.mocked_encoder
+
+        model_mock.return_value = MagicMock()
+        model_mock.return_value.predict = self.mocked_predict
         self._create_from_test_data()
         response = self._send_request_for_evaluation_result()
         # Check if resource was received
@@ -131,7 +161,8 @@ class ClaimBundleAPITests(ClaimAPIContainedTestBaseMixin, GenericFhirAPITestMixi
 
     def _create_from_test_data(self):
         headers = self._get_headers()
-        response = self.client.post(self.resource_url, data=self._test_request_data, format='json', **headers)
+        url = self.resource_url + '?wait_for_evaluation=True'
+        response = self.client.post(url, data=self._test_request_data, format='json', **headers)
         return response
 
     def _send_request_for_evaluation_result(self):
@@ -147,3 +178,19 @@ class ClaimBundleAPITests(ClaimAPIContainedTestBaseMixin, GenericFhirAPITestMixi
 
     def _get_expected_identifier_from_create_response(self):
         return self._test_request_data['identifier']['value']
+
+    @classmethod
+    def mocked_scaler(cls, df):
+        scaler = preprocessing.MinMaxScaler()
+        return scaler.fit_transform(df)
+
+    @classmethod
+    def mocked_predict(cls, input_):
+        return [0, 1]
+
+    @classmethod
+    def mocked_encoder(cls, df_categorical):
+        le = preprocessing.LabelEncoder()
+        for column in list(df_categorical.columns):
+            df_categorical[column] = le.fit_transform(df_categorical[column])
+        return df_categorical

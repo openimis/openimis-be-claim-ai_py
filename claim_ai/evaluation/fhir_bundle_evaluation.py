@@ -1,8 +1,8 @@
 from enum import Enum, auto
 
 import pandas
-from claim_ai.evaluation.ai_model import AiModel
-from claim_ai.evaluation.converters.r4_fhir_resources.bundle_converter import BundleConverter
+from claim_ai.evaluation.predictor import AiPredictor
+from claim_ai.evaluation.converters import BundleConverter
 from claim_ai.evaluation.evaluation_result import EvaluationResult
 
 
@@ -13,7 +13,7 @@ class ClaimBundleEvaluationOutputFormat(Enum):
 
 class ClaimBundleEvaluator:
     fhir_converter = BundleConverter()
-    ai_model = AiModel()
+    ai_model = AiPredictor()
 
     @classmethod
     def evaluate_bundle(cls, claim_bundle, output_format=ClaimBundleEvaluationOutputFormat.FHIR_RESPONSE):
