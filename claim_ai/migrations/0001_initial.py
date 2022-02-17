@@ -46,7 +46,7 @@ class Migration(migrations.Migration):
             name='SingleClaimEvaluationResult',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('bundle_evaluation', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='claim', to='claim_ai.ClaimBundleEvaluator')),
+                ('bundle_evaluation', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='claim', to='claim_ai.ClaimBundleEvaluation')),
                 ('claim', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='ai_evaluations', to='claim.Claim')),
             ],
         ),
