@@ -6,8 +6,9 @@ import concurrent.futures
 import traceback
 
 from ..apps import ClaimAiConfig
-from ..evaluation import ClaimBundleEvaluation
 from channels.generic.websocket import AsyncConsumer
+
+from ..evaluation.fhir_bundle_evaluation import ClaimBundleEvaluator
 
 logger = logging.getLogger(__name__)
 
@@ -60,7 +61,7 @@ class ClaimConsumer(AsyncConsumer):
 
     async def _send_evaluation(self, bundle, event_index):
         try:
-            evaluation_result = ClaimBundleEvaluation.evaluate_bundle(bundle)
+            evaluation_result = ClaimBundleEvaluator.evaluate_bundle(bundle)
             evaluation_response = {'type': 'claim.bundle.payload', 'content': evaluation_result, 'index': event_index}
             await self.send({'type': 'websocket.send', 'text': json.dumps(evaluation_response)})
         except Exception as e:

@@ -150,7 +150,7 @@ class ClaimBundleAPITests(ClaimAPIContainedTestBaseMixin, GenericFhirAPITestMixi
         return json.loads(self._adjust_expected_response_string(payload))
 
     def __read_file_from_path(self, filename):
-        dir_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+        dir_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         return open(dir_path + filename).read()
 
     def _assert_contained(self):
