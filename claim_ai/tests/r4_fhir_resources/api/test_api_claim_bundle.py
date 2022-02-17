@@ -34,8 +34,8 @@ class ClaimBundleAPITests(ClaimAPIContainedTestBaseMixin, GenericFhirAPITestMixi
         return self.base_url + self.resource_uri
     # resource_url = base_url + resource_uri
 
-    _test_json_request_path = "/api/test_bundle_payload.json"
-    _test_json_response_path = "/api/test_bundle_response.json"
+    _test_json_request_path = "/api/test/test_bundle_payload.json"
+    _test_json_response_path = "/api/test/test_bundle_response.json"
 
     def setUp(self):
         self._test_request_data = self._load_request_data()
@@ -151,7 +151,7 @@ class ClaimBundleAPITests(ClaimAPIContainedTestBaseMixin, GenericFhirAPITestMixi
 
     def __read_file_from_path(self, filename):
         dir_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
-        print(os.listdir(dir_path), os.listdir(dir_path+'/api/'))
+        print(os.listdir(dir_path), os.listdir(dir_path+'/api/test/'))
         return open(dir_path + filename).read()
 
     def _assert_contained(self):
