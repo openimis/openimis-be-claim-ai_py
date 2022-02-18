@@ -17,9 +17,9 @@ from claim_ai.models import ClaimBundleEvaluation
 
 def get_base_url():
     module = 'claim_ai'
-    root = settings.SITE_ROOT()
+    root = settings.SITE_ROOT() or '/'
     base_url = root if root.endswith('/') else F"{root}/"
-    return F"{base_url}{module}/"
+    return F"/{base_url}{module}/"
 
 
 class ClaimBundleAPITests(ClaimAPIContainedTestBaseMixin, GenericFhirAPITestMixin, APITestCase):
