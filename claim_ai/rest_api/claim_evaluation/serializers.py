@@ -20,7 +20,8 @@ class ClaimBundleEvaluationSerializer(ClaimSerializer):
         super().__init__(*args, **kwargs)
         self.request_handler = RequestToInternalValueHandler(self.fhirConverter, self.get_audit_user_id())
         self.response_handler = ResponseHandler()
-        self.evaluation_bundle_manager = ClaimBundleEvaluationManager()
+        user = self.context.get("request").user
+        self.evaluation_bundle_manager = ClaimBundleEvaluationManager(user)
 
     def to_representation(self, obj):
         return self.response_handler.to_representation(obj)

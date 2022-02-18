@@ -68,5 +68,6 @@ class ClaimBundleEvaluator:
             provision_evaluation.save()
 
         claim_bundle_evaluation.status = ClaimBundleEvaluation.BundleEvaluationStatus.FINISHED
-        claim_bundle_evaluation.save()
+        user = claim_bundle_evaluation.user_created
+        claim_bundle_evaluation.save(username=user.username)
         return claim_bundle_evaluation

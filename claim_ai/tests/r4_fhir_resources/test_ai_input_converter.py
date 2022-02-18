@@ -140,8 +140,8 @@ class TestAiInputConverter(testcases.TestCase):
 
         self._create_items_and_services(historical_claim, self._TEST_PRODUCT, self.item, self.service)
         item, service = self._create_items_and_services(claim, self._TEST_PRODUCT, self.item, self.service)
-        claim_bundle_evaluation = ClaimBundleEvaluationManager().create_idle_evaluation_bundle([claim])
-        claim_bundle_evaluation = ClaimBundleEvaluationManager().create_idle_evaluation_bundle([claim])
+        claim_bundle_evaluation = ClaimBundleEvaluationManager(self._TEST_USER).create_idle_evaluation_bundle([claim])
+        claim_bundle_evaluation = ClaimBundleEvaluationManager(self._TEST_USER).create_idle_evaluation_bundle([claim])
         return claim_bundle_evaluation
 
     def _create_items_and_services(self, claim, imis_product, item, service):
