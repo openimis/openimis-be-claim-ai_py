@@ -1,8 +1,7 @@
 
-from pandas._testing import assert_series_equal, assert_frame_equal
+from pandas._testing import assert_series_equal
 from unittest import TestCase
 from .test_fhir_bundle import socket_data
-from claim_ai.evaluation import converter
 from .helpers import AiConvertionHelper
 
 
@@ -14,7 +13,7 @@ class TestAiInputConverter(TestCase):
     #     ai_converter = converter.FHIRConverter()
     #
     #     claim_bundle_input_models, _ = ai_converter.bundle_ai_input(self.TEST_BUNDLE)
-    #     self.assertEqual(len([claim for claim, _ in claim_bundle_input_models]), 1)  # input generated for single claim
+    #     self.assertEqual(len([claim for claim, _ in claim_bundle_input_models]), 1)  # input_bundle generated for single claim
     #
     #     generated_input = []
     #     for _, claim_input_models in claim_bundle_input_models:

@@ -3,16 +3,14 @@ import core
 from unittest import TestCase
 
 from claim_ai.apps import ClaimAiConfig
-from claim_ai.evaluation import converter
-from claim_ai.evaluation.converters.r4_fhir_resources.bundle_converter import BundleConverter
-from claim_ai.evaluation.converters.r4_fhir_resources.response_converter import ClaimResponseConverter
+from claim_ai.evaluation.converters import BundleConverter, AiConverter
 from claim_ai.evaluation.evaluation_result import EvaluationResult
 from claim_ai.tests.r4_fhir_resources.utils import BASE_FHIR_PAYLOAD, ConverterHelper
 
 
 class TestAiInputConverter(TestCase):
     HELPER_CLASS = ConverterHelper()
-    AI_INPUT_CONVERTER = converter.AiConverter()
+    AI_INPUT_CONVERTER = AiConverter()
 
     FHIR_BUNDLE_PAYLOAD = BASE_FHIR_PAYLOAD
 

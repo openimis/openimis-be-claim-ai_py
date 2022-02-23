@@ -3,7 +3,7 @@ from unittest import TestCase
 
 from pandas._testing import assert_frame_equal
 
-from claim_ai.evaluation.converters.r4_fhir_resources.ai_converter import AiConverter
+from claim_ai.evaluation.converters import AiConverter
 from claim_ai.tests.r4_fhir_resources.converters.base_case import BaseConverterTestCaseMixin
 
 

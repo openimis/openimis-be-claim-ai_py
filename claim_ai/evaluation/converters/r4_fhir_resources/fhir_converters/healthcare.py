@@ -2,7 +2,7 @@ from fhir.resources.organization import Organization as OrganizationFHIR
 from claim_ai.evaluation.converters.r4_fhir_resources.fhir_converters.abstract_converters import \
     GenericContainedResourceConverter
 from claim_ai.evaluation.converters.r4_fhir_resources.fhir_converters.dataclasses import FhirClaimInformation
-from claim_ai.evaluation.input_models import BaseDataFrameModel, HealthcareService as HealthcareService
+from claim_ai.evaluation.input_models import HealthcareService as HealthcareService
 
 
 class OrganizationConverter(GenericContainedResourceConverter):

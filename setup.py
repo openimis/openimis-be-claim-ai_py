@@ -27,7 +27,8 @@ setup(
         'scikit-learn==0.23.2',
         'xgboost',
         'category_encoders',
-        'pandas>=1.2.3'
+        'pandas==1.1.4',
+        'pandarallel==1.5.5',
     ],
     classifiers=[
         'Environment :: Web Environment',

@@ -1,1 +1,1 @@
-from .input_model import *
+from .fhir_input_model import *
