@@ -56,10 +56,10 @@ class ClaimProvisionEvaluationResult(models.Model):
             cls, claim_evaluation_information: SingleClaimEvaluationResult, save: bool = False):
         claim = claim_evaluation_information.claim
         out = []
-        for item in claim.items.all():
+        for item in claim.items.filter(validity_to__isnull=True).all():
             out.append(cls.__build_evaluation_result(ClaimItem, item, claim_evaluation_information))
 
-        for service in claim.services.all():
+        for service in claim.services.filter(validity_to__isnull=True).all():
             out.append(cls.__build_evaluation_result(ClaimService, service, claim_evaluation_information))
 
         if save:
