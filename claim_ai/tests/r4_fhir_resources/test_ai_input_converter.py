@@ -34,7 +34,7 @@ class TestAiInputConverter(testcases.TestCase):
 
     # claim item data
     _TEST_ITEM_CODE = "iCode"
-    _TEST_ITEM_UUID = "e2bc1546-390b-4d41-8571-632ecf7a0936"
+    _TEST_ITEM_UUID = "AAAA76E2-DC28-4B48-8E29-3AC4ABEC0000"
     _TEST_ITEM_STATUS = Claim.STATUS_ENTERED
     _TEST_ITEM_QUANTITY = 20
     _TEST_ITEM_PRICE = 10.0
@@ -42,35 +42,36 @@ class TestAiInputConverter(testcases.TestCase):
 
     # claim service data
     _TEST_SERVICE_CODE = "sCode"
-    _TEST_SERVICE_UUID = "a17602f4-e9ff-4f42-a6a4-ccefcb23b4d6"
+    _TEST_SERVICE_UUID = "AAAA29BA-3F4E-4E6F-B55C-23A488A10000"
     _TEST_SERVICE_STATUS = Claim.STATUS_ENTERED
     _TEST_SERVICE_QUANTITY = 1
     _TEST_SERVICE_PRICE = 800
     _TEST_SERVICE_REJECTED_REASON = 0
 
     _TEST_ID = 9999
+    _TEST_HISTORICAL_UUID = "AE580700-0277-4C98-ADAB-D98C0F700000"
     _TEST_HISTORICAL_ID = 9998
     _PRICE_ASKED_ITEM = 1000.0
     _PRICE_ASKED_SERVICE = 820.0
     _PRICE_APPROVED = 1000
     _ADMIN_AUDIT_USER_ID = -1
 
-    _TEST_UUID = "ae580700-0277-4c98-adab-d98c0f7e681b"
+    _TEST_UUID = "AE580700-0277-4C98-ADAB-D98C0F7E681B"
     _TEST_ITEM_AVAILABILITY = True
 
     _TEST_ITEM_TYPE = 'D'
     _TEST_SERVICE_TYPE = 'D'
 
     # insuree and claim admin data
-    _TEST_PATIENT_UUID = "76aca309-f8cf-4890-8f2e-b416d78de00b"
+    _TEST_PATIENT_UUID = "76ACA309-F8CF-4890-8F2E-B416D78DE00B"
     _TEST_PATIENT_ID = 9283
-    _TEST_CLAIM_ADMIN_UUID = "044c33d1-dbf3-4d6a-9924-3797b461e535"
+    _TEST_CLAIM_ADMIN_UUID = "044C33D1-DBF3-4D6A-9924-3797B461E535"
     _TEST_CLAIM_ADMIN_ID = 9282
 
     _PRICE_VALUATED = 1000.0
     # hf test data
     _TEST_HF_ID = 10000
-    _TEST_HF_UUID = "6d0eea8c-62eb-11ea-94d6-c36229a16c2f"
+    _TEST_HF_UUID = "6D0EEA8C-62EB-11EA-94D6-C36229A16C2F"
     _TEST_HF_CODE = "12345678"
     _TEST_HF_NAME = "TEST_NAME"
     _TEST_HF_LEVEL = "H"
@@ -100,10 +101,14 @@ class TestAiInputConverter(testcases.TestCase):
             self._TEST_ITEM_TYPE,
             custom_props={"code": self._TEST_ITEM_CODE, 'price': self._TEST_ITEM_PRICE}
         )
+        self.item.uuid = self._TEST_ITEM_UUID
+        self.item.save()
         self.service = create_test_service(
             self._TEST_SERVICE_TYPE,
             custom_props={"code": self._TEST_SERVICE_CODE, 'price': self._TEST_SERVICE_PRICE}
         )
+        self.service.uuid = self._TEST_ITEM_UUID
+        self.service.save()
 
         self._TEST_HF = self._create_test_health_facility()
         self._TEST_PRODUCT = self._create_test_product()
@@ -190,6 +195,7 @@ class TestAiInputConverter(testcases.TestCase):
             imis_claim.uuid = self._TEST_UUID
         else:
             imis_claim.id = self._TEST_HISTORICAL_ID
+            imis_claim.uuid = self._TEST_HISTORICAL_UUID
         imis_claim.code = self._TEST_CODE
         imis_claim.status = self._TEST_STATUS
         imis_claim.adjustment = self._TEST_ADJUSTMENT
@@ -250,8 +256,8 @@ class TestAiInputConverter(testcases.TestCase):
         return pandas.DataFrame([
             {
                 'ProvisionType': 'Medication',
-                'ItemID': self.item.id,
-                'HFID': 10000,
+                'ItemUUID': self.item.uuid,
+                'HFUUID': "6D0EEA8C-62EB-11EA-94D6-C36229A16C2F",
                 'LocationId': self._TEST_HF.location.id,  # Is this HF location or insuree location?
                 'ICDCode': 'ICD00I',
                 'ICD1Code': None,
@@ -273,15 +279,15 @@ class TestAiInputConverter(testcases.TestCase):
                 'VisitType': 'O',
                 'RejectionReason': 0,
                 'PriceValuated': self._PRICE_VALUATED,
-                'HFId': self._TEST_HF.id,
-                'ClaimAdminId': self._TEST_CLAIM_ADMIN_ID,
-                'InsureeID': self._TEST_PATIENT_ID,
-                'ClaimId': self._TEST_ID,
+                'HfUUID': self._TEST_HF.uuid,
+                'ClaimAdminUUID': self._TEST_CLAIM_ADMIN_UUID,
+                'InsureeUUID': self._TEST_PATIENT_UUID,
+                'ClaimUUID': self._TEST_UUID,
                 'New': 'new'
             }, {
                 'ProvisionType': 'ActivityDefinition',
-                'ItemID': self.service.id,
-                'HFID': 10000,
+                'ItemUUID': self.service.uuid,
+                'HFUUID': "6D0EEA8C-62EB-11EA-94D6-C36229A16C2F",
                 'LocationId': self._TEST_HF.location.id,
                 'ICDCode': 'ICD00I',
                 'ICD1Code': None,
@@ -303,15 +309,15 @@ class TestAiInputConverter(testcases.TestCase):
                 'VisitType': 'O',
                 'RejectionReason': 0,
                 'PriceValuated': self._PRICE_VALUATED,
-                'HFId': self._TEST_HF.id,
-                'ClaimAdminId': self._TEST_CLAIM_ADMIN_ID,
-                'InsureeID': self._TEST_PATIENT_ID,
-                'ClaimId': self._TEST_ID,
+                'HfUUID': self._TEST_HF.uuid,
+                'ClaimAdminUUID': self._TEST_CLAIM_ADMIN_UUID,
+                'InsureeUUID': self._TEST_PATIENT_UUID,
+                'ClaimUUID': self._TEST_UUID,
                 'New': 'new'
             }, {
                 'ProvisionType': 'Medication',
-                'ItemID': self.item.id,
-                'HFID': 10000,
+                'ItemUUID': self.item.uuid,
+                'HFUUID': "6D0EEA8C-62EB-11EA-94D6-C36229A16C2F",
                 'LocationId': self._TEST_HF.location.id,
                 'ICDCode': 'ICD00V',
                 'ICD1Code': None,
@@ -333,15 +339,15 @@ class TestAiInputConverter(testcases.TestCase):
                 'VisitType': 'O',
                 'RejectionReason': 0,
                 'PriceValuated': self._PRICE_VALUATED,
-                'HFId': self._TEST_HF.id,
-                'ClaimAdminId': self._TEST_CLAIM_ADMIN_ID,
-                'InsureeID': self._TEST_PATIENT_ID,
-                'ClaimId': self._TEST_HISTORICAL_ID,
+                'HfUUID': self._TEST_HF.uuid,
+                'ClaimAdminUUID': self._TEST_CLAIM_ADMIN_UUID,
+                'InsureeUUID': self._TEST_PATIENT_UUID,
+                'ClaimUUID': self._TEST_HISTORICAL_UUID,
                 'New': 'old'
             }, {
                 'ProvisionType': 'ActivityDefinition',
-                'ItemID': self.service.id,
-                'HFID': 10000,
+                'ItemUUID': self.service.uuid,
+                'HFUUID': "6D0EEA8C-62EB-11EA-94D6-C36229A16C2F",
                 'LocationId': self._TEST_HF.location.id,
                 'ICDCode': 'ICD00V',
                 'ICD1Code': None,
@@ -363,10 +369,10 @@ class TestAiInputConverter(testcases.TestCase):
                 'VisitType': 'O',
                 'RejectionReason': 0,
                 'PriceValuated': self._PRICE_VALUATED,
-                'HFId': self._TEST_HF.id, 
-                'ClaimAdminId': self._TEST_CLAIM_ADMIN_ID,
-                'InsureeID': self._TEST_PATIENT_ID,
-                'ClaimId': self._TEST_HISTORICAL_ID,
+                'HfUUID': self._TEST_HF.uuid,
+                'ClaimAdminUUID': self._TEST_CLAIM_ADMIN_UUID,
+                'InsureeUUID': self._TEST_PATIENT_UUID,
+                'ClaimUUID': self._TEST_HISTORICAL_UUID,
                 'New': 'old'
             }
         ])
