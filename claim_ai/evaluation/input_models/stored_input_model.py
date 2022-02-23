@@ -134,7 +134,7 @@ class ClaimBundleEvaluationAiInputModel(BaseDataFrameModel):
     @classmethod
     def __claim_provision_by_claim_id(cls, claim_ids, provision_model, prefetch):
         return provision_model.objects \
-            .filter(claim_id__in=claim_ids) \
+            .filter(claim_id__in=claim_ids, validity_to__isnull=True) \
             .all() \
             .prefetch_related(*prefetch)
 
