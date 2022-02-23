@@ -54,7 +54,7 @@ class ClaimBundleEvaluationAiInputModel(BaseDataFrameModel):
             'DOB': claim_item.claim.insuree.dob,
             'Gender':cls._get_claim_item_value(
                     claim_item, lambda x: x.claim.insuree.gender.code, 'Gender', 'Insuree without gender.'),
-            'Poverty': claim_item.claim.insuree.family.poverty,
+            'Poverty': claim_item.claim.insuree.family.poverty if claim_item.claim.insuree.family else None,
             'QuantityProvided': int(claim_item.qty_provided),
             'ItemPrice': float(claim_item.itemsvc.price),
             'PriceAsked': float(claim_item.price_asked),

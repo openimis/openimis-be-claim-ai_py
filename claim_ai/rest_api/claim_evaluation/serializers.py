@@ -5,7 +5,7 @@ from rest_framework.generics import get_object_or_404
 from api_fhir_r4.converters import ClaimResponseConverter
 from api_fhir_r4.serializers import ClaimSerializer
 from claim.models import Claim
-from claim_ai.rest_api.claim_evaluation.claim_bundle_evalaution_manager import ClaimBundleEvaluationManager
+from claim_ai.rest_api.claim_evaluation.claim_bundle_evaluation_manager import ClaimBundleEvaluationManager
 from claim_ai.rest_api.claim_evaluation.serializer_data_handlers import ResponseHandler, RequestToInternalValueHandler
 
 logger = logging.getLogger(__name__)

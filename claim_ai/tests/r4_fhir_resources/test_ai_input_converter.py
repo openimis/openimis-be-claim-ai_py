@@ -5,7 +5,7 @@ from pandas._testing import assert_frame_equal
 from product.test_helpers import create_test_product
 
 from claim_ai.evaluation.input_models.stored_input_model import ClaimBundleEvaluationAiInputModel
-from claim_ai.rest_api.claim_evaluation.claim_bundle_evalaution_manager import ClaimBundleEvaluationManager
+from claim_ai.rest_api.claim_evaluation.claim_bundle_evaluation_manager import ClaimBundleEvaluationManager
 from core import datetime
 from core.forms import User
 from core.services import create_or_update_interactive_user, create_or_update_core_user
