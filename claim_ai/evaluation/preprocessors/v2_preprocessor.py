@@ -47,18 +47,17 @@ class AiInputV2Preprocessor(AbstractAiInputDataFramePreprocessor):
                          (df_items['DateClaimed'] < df_items['DateFrom'])
 
         # Incoherence between status and valuated price
-        exclusion_cnd6 = (df_items['RejectionReason'] == self.RR_RbyMO) & (df_items['PriceValuated'] > 0)
+        # exclusion_cnd6 = (df_items['RejectionReason'] == self.RR_RbyMO) & (df_items['PriceValuated'] > 0)
 
-        # Check if ClaimAdminID has the same HFID as the ClaimHFID:
-        exclusion_cnd7 = (df_items['HFID'] != df_items['HFId'])
+        # Check if ClaimAdminID has the same HFUUID as the ClaimHFUUID:
+        # exclusion_cnd7 = (df_items['HFUUID']!=df_items['HfUUID'])
 
-        conditions = [exclusion_cnd5, exclusion_cnd6, exclusion_cnd7, \
-                      ~(exclusion_cnd5 & exclusion_cnd6 & exclusion_cnd7)]
-        values = ['Condition5', 'Condition6', 'Condition7', 'Clean data']
+        conditions = [exclusion_cnd5, ~(exclusion_cnd5)]
+        values = ['Condition5', 'Clean data']
         df_items['SanityCheck'] = np.select(conditions, values)
         result_df = self._create_aggregated_fields(df_items)
         selected_cols = [
-            'ItemID', 'HFID', 'LocationId', 'ICDCode', 'ICD1Code', 'ProdID',
+            'ItemUUID', 'HFUUID', 'LocationId', 'ICDCode', 'ICD1Code',
             'Age', 'Gender', 'Poverty',
             'QuantityProvided', 'TotalPrice', 'DiffTotalPrice',
             'Duration', 'DurationClaimed',
@@ -80,7 +79,7 @@ class AiInputV2Preprocessor(AbstractAiInputDataFramePreprocessor):
         return index, df_new
 
     def convert_variables(self, df_items: pd.DataFrame) -> pd.DataFrame:
-        cat_features = ['ItemLevel', 'VisitType', 'HFLevel', 'Gender',
+        cat_features = ['ItemUUID', 'HFUUID', 'ItemLevel', 'VisitType', 'HFLevel', 'Gender',
                         'HFCareType', 'ICDCode', 'ICD1Code']
         df_data_encoded = df_items.copy()
         categorical = df_data_encoded[cat_features]
@@ -88,7 +87,7 @@ class AiInputV2Preprocessor(AbstractAiInputDataFramePreprocessor):
         return df_data_encoded
 
     def normalize_input(self, df_items: pd.DataFrame) -> pd.DataFrame:
-        selected_cols = ['ItemID', 'HFID', 'LocationId', 'ICDCode', 'ICD1Code', 'ProdID',
+        selected_cols = ['ItemUUID', 'HFUUID', 'LocationId', 'ICDCode', 'ICD1Code',
                          'Age', 'Gender', 'Poverty',
                          'QuantityProvided', 'TotalPrice', 'DiffTotalPrice',
                          'Duration', 'DurationClaimed',
@@ -142,27 +141,27 @@ class AiInputV2Preprocessor(AbstractAiInputDataFramePreprocessor):
         df_items['DateFrom'] = (df_items['DateFrom'] - datetime.date(2016, 1, 1)).dt.days
         df_items['DateFrom'] = df_items['DateFrom'].apply(pd.to_numeric, errors='coerce')
 
-        fields = ['ItemPrice', 'ItemID', 'ClaimAdminId']
+        fields = ['ItemPrice']
         df_items[fields] = df_items[fields].apply(pd.to_numeric, errors='coerce')
 
         # LAST SAME ITEM
         # Computing the LastSameItem aggregated fiel:
-        # the time lapse (in days) of the same item submitted for the same InsureeID
-        # First sorting values wrt [‘InsureeID’,’ItemID’,’DateFrom’] in descending order and followed
+        # the time lapse (in days) of the same item submitted for the same InsureeUUID
+        # First sorting values wrt [‘InsureeUUID’,’ItemUUID’,’DateFrom’] in descending order and followed
         # by the computation of the difference in valued in the ‘DateFrom’ field
-        df_items.sort_values(by=['InsureeID', 'ItemID', 'DateFrom'], ascending=True, inplace=True)
-        df_items['LastSameItem'] = df_items.groupby(['InsureeID', 'ItemID'])['DateFrom'].diff()
+        df_items.sort_values(by=['InsureeUUID', 'ItemUUID', 'DateFrom'], ascending=True, inplace=True)
+        df_items['LastSameItem'] = df_items.groupby(['InsureeUUID', 'ItemUUID'])['DateFrom'].diff()
         # The first item related to an InsureeiId will have no value (NaN) for the LastSameItem,
         # in this case the Nan will be replaced 4000.
         df_items['LastSameItem'].fillna(4000, inplace=True)
 
         # SameItemPerClaim and SameItemPerDay
-        df_items['SameItemPerClaim'] = df_items.groupby(['InsureeID', 'ClaimId', 'ItemID'])['ItemID'].transform('count')
-        df_items['SameItemPerDay'] = df_items.groupby(['InsureeID', 'DateFrom', 'ItemID'])['ItemID'].transform('count')
+        df_items['SameItemPerClaim'] = df_items.groupby(['InsureeUUID', 'ClaimUUID', 'ItemUUID'])['ItemUUID'].transform('count')
+        df_items['SameItemPerDay'] = df_items.groupby(['InsureeUUID', 'DateFrom', 'ItemUUID'])['ItemUUID'].transform('count')
 
-        df_items['ItemsPerClaim'] = df_items.groupby(['InsureeID', 'ClaimId'])['ItemID'].transform('count')
-        df_items['AmountPerClaim'] = df_items.groupby(['InsureeID', 'DateFrom'])['TotalPrice'].transform(sum)
-        df_items['AmountAskedPerClaim'] = df_items.groupby(['InsureeID', 'DateFrom'])['TotalPriceAsked'].transform(sum)
+        df_items['ItemsPerClaim'] = df_items.groupby(['InsureeUUID', 'ClaimUUID'])['ItemUUID'].transform('count')
+        df_items['AmountPerClaim'] = df_items.groupby(['InsureeUUID', 'DateFrom'])['TotalPrice'].transform(sum)
+        df_items['AmountAskedPerClaim'] = df_items.groupby(['InsureeUUID', 'DateFrom'])['TotalPriceAsked'].transform(sum)
 
         # IsPackage
         # index = df_cleandata['Justification_reason']==11
@@ -172,12 +171,12 @@ class AiInputV2Preprocessor(AbstractAiInputDataFramePreprocessor):
         df_items['IsPackage'] = 0
         df_items.loc[index_sup, 'IsPackage'] = 1
         # Items and amounts per day
-        keys = ['InsureeID', 'DateFrom']
-        df_items['ItemsPerDay'] = df_items.groupby(keys)['ItemID'].transform('count')
+        keys = ['InsureeUUID', 'DateFrom']
+        df_items['ItemsPerDay'] = df_items.groupby(keys)['ItemUUID'].transform('count')
         df_items['AmountPerDay'] = df_items.groupby(keys)['TotalPrice'].transform(sum)
 
         df_items.set_index('Date')
-        cols = ['Date', 'InsureeID', 'ItemsPerDay', 'AmountPerDay']
+        cols = ['Date', 'InsureeUUID', 'ItemsPerDay', 'AmountPerDay']
         temp = df_items[cols].drop_duplicates()
 
         result_df = df_items.copy()
@@ -187,48 +186,49 @@ class AiInputV2Preprocessor(AbstractAiInputDataFramePreprocessor):
         temp = temp.sort_index()
 
         workers = min(self.nbworkers, len(result_df))
-        feature_name = ['InsureeID', 'ItemsPerDay', 'AmountPerDay']
+        feature_name = ['InsureeUUID', 'ItemsPerDay', 'AmountPerDay']
         new_feature = ['ItemsPerWeek', 'AmountPerWeek']
         result_df = self.aggregation_function(temp, result_df, '7D', feature_name, new_feature, workers)
 
-        feature_name = ['InsureeID', 'ItemsPerDay', 'AmountPerDay']
+        feature_name = ['InsureeUUID', 'ItemsPerDay', 'AmountPerDay']
         new_feature = ['ItemsPerMonth', 'AmountPerMonth']
         result_df = self.aggregation_function(temp, result_df, '30D', feature_name, new_feature, workers)
 
-        feature_name = ['InsureeID', 'ItemsPerDay', 'AmountPerDay']
+        feature_name = ['InsureeUUID', 'ItemsPerDay', 'AmountPerDay']
         new_feature = ['ItemsPerQuarter', 'AmountPerQuarter']
         result_df = self.aggregation_function(temp, result_df, '90D', feature_name, new_feature, workers)
 
-        feature_name = ['InsureeID', 'ItemsPerDay', 'AmountPerDay']
+        feature_name = ['InsureeUUID', 'ItemsPerDay', 'AmountPerDay']
         new_feature = ['ItemsPerYear', 'AmountPerYear']
         result_df = self.aggregation_function(temp, result_df, '365D', feature_name, new_feature, workers)
 
-        # Aggregation related to HFID
-        cols = ['HFID', 'ICDCode', 'ItemID', 'Gender', 'Age', 'QuantityProvided', 'PriceAsked', 'ItemPrice']
-        result_df['ICDTotalAmountAsked'] = result_df.groupby(['HFID', 'ICDCode'])['TotalPriceAsked'].transform('sum')
-        keys = ['HFID', 'ICDCode', 'ItemID']
-        result_df['ICDItemCount'] = result_df.groupby(keys)['ItemID'].transform('count')
-        result_df['ICDCount'] = result_df.groupby(['HFID', 'ICDCode'])['ICDCode'].transform('count')
+        # Aggregation related to HFUUID
+        result_df['ICDTotalAmountAsked'] = result_df.groupby(['HFUUID', 'ICDCode'])['TotalPriceAsked'].transform('sum')
+        keys = ['HFUUID', 'ICDCode', 'ItemUUID']
+        result_df['ICDItemCount'] = result_df.groupby(keys)['ItemUUID'].transform('count')
+        result_df['ICDCount'] = result_df.groupby(['HFUUID', 'ICDCode'])['ICDCode'].transform('count')
         result_df['ICDItemProba'] = result_df['ICDItemCount'] / result_df['ICDCount']
         # Items related to HF|ICD |Gender and HF|Item |Gender
-        keys = ['HFID', 'ICDCode', 'Gender']
+        keys = ['HFUUID', 'ICDCode', 'Gender']
         result_df['ICDGenderCount'] = result_df.groupby(keys)['Gender'].transform('count')
         result_df['ICDGenderProba'] = result_df['ICDGenderCount'] / result_df['ICDCount']
-        keys = ['HFID', 'ItemID', 'Gender']
+
+        keys = ['HFUUID', 'ItemUUID', 'Gender']
         result_df['ItemGenderCount'] = result_df.groupby(keys)['Gender'].transform('count')
-        keys = ['HFID', 'ItemID']
-        result_df['ItemCount'] = result_df.groupby(keys)['ItemID'].transform('count')
+        keys = ['HFUUID', 'ItemUUID']
+        result_df['ItemCount'] = result_df.groupby(keys)['ItemUUID'].transform('count')
         result_df['ItemGenderProba'] = result_df['ItemGenderCount'] / result_df['ItemCount']
         # Items related to HF|ICD |Age and HF|Item |Age
-        keys = ['HFID', 'ICDCode', 'Age']
-        result_df['ICDAge_q1'] = result_df[keys].groupby(['HFID', 'ICDCode']).transform(lambda x: x.quantile(0.10))
-        result_df['ICDAge_q2'] = result_df[keys].groupby(['HFID', 'ICDCode']).transform(lambda x: x.quantile(0.90))
+        keys = ['HFUUID', 'ICDCode', 'Age']
+        result_df['ICDAge_q1'] = result_df[keys].groupby(['HFUUID', 'ICDCode']).transform(lambda x: x.quantile(0.10))
+        result_df['ICDAge_q2'] = result_df[keys].groupby(['HFUUID', 'ICDCode']).transform(lambda x: x.quantile(0.90))
         index_age = (result_df['Age'] >= result_df['ICDAge_q1']) & (result_df['Age'] <= result_df['ICDAge_q2'])
         result_df.loc[index_age, 'ICDAge_q'] = 0
         result_df.loc[~index_age, 'ICDAge_q'] = 1
-        keys = ['HFID', 'ItemID', 'Age']
-        result_df['ItemAge_q1'] = result_df[keys].groupby(['HFID', 'ItemID']).transform(lambda x: x.quantile(0.10))
-        result_df['ItemAge_q2'] = result_df[keys].groupby(['HFID', 'ItemID']).transform(lambda x: x.quantile(0.90))
+
+        keys = ['HFUUID', 'ItemUUID', 'Age']
+        result_df['ItemAge_q1'] = result_df[keys].groupby(['HFUUID', 'ItemUUID']).transform(lambda x: x.quantile(0.10))
+        result_df['ItemAge_q2'] = result_df[keys].groupby(['HFUUID', 'ItemUUID']).transform(lambda x: x.quantile(0.90))
         index_age = (result_df['Age'] >= result_df['ItemAge_q1']) & (result_df['Age'] <= result_df['ItemAge_q2'])
         result_df.loc[index_age, 'ItemAge_q'] = 0
         result_df.loc[~index_age, 'ItemAge_q'] = 1

@@ -45,14 +45,14 @@ class ClaimBundleEvaluationAiInputModel(BaseDataFrameModel):
         return {
             'ProvisionID': claim_item.id,  # Property not used in model prediction but can connect items to index
             'ProvisionType': 'ActivityDefinition' if claim_item.model_prefix == 'service' else 'Medication',
-            'ItemID': claim_item.itemsvc.id,
-            'HFID': claim_item.claim.health_facility.id,
+            'ItemUUID': claim_item.itemsvc.uuid,
+            'HFUUID': claim_item.claim.health_facility.uuid,
             'LocationId': claim_item.claim.health_facility.location.id,
             'ICDCode': claim_item.claim.icd.code,
             'ICD1Code': claim_item.claim.icd_1.code if claim_item.claim.icd_1 else None,
             'ProdID': claim_item.product.id if claim_item.product else None,
             'DOB': claim_item.claim.insuree.dob,
-            'Gender':cls._get_claim_item_value(
+            'Gender': cls._get_claim_item_value(
                     claim_item, lambda x: x.claim.insuree.gender.code, 'Gender', 'Insuree without gender.'),
             'Poverty': claim_item.claim.insuree.family.poverty if claim_item.claim.insuree.family else None,
             'QuantityProvided': int(claim_item.qty_provided),
@@ -69,10 +69,10 @@ class ClaimBundleEvaluationAiInputModel(BaseDataFrameModel):
             'VisitType': claim_item.claim.visit_type,
             'RejectionReason': claim_item.rejection_reason,
             'PriceValuated': float(claim_item.price_valuated or 0),
-            'HFId': claim_item.claim.admin.health_facility.id,
-            'ClaimAdminId': claim_item.claim.admin.id,
-            'InsureeID': claim_item.claim.insuree.id,
-            'ClaimId': claim_item.claim.id,
+            'HfUUID': claim_item.claim.admin.health_facility.uuid,
+            'ClaimAdminUUID': claim_item.claim.admin.uuid,
+            'InsureeUUID': claim_item.claim.insuree.uuid,
+            'ClaimUUID': claim_item.claim.uuid,
             'New': claim_item.New  # annotated
         }
 
