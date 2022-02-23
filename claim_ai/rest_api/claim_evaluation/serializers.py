@@ -1,3 +1,5 @@
+import logging
+
 from rest_framework.generics import get_object_or_404
 
 from api_fhir_r4.converters import ClaimResponseConverter
@@ -5,6 +7,8 @@ from api_fhir_r4.serializers import ClaimSerializer
 from claim.models import Claim
 from claim_ai.rest_api.claim_evaluation.claim_bundle_evalaution_manager import ClaimBundleEvaluationManager
 from claim_ai.rest_api.claim_evaluation.serializer_data_handlers import ResponseHandler, RequestToInternalValueHandler
+
+logger = logging.getLogger(__name__)
 
 
 class ClaimBundleEvaluationSerializer(ClaimSerializer):
@@ -41,7 +45,18 @@ class ClaimBundleEvaluationSerializer(ClaimSerializer):
         return ClaimResponseConverter.to_fhir_obj(claim)
 
     def _imis_claims_from_validated_data(self, validated_data, contained):
-        return [self._submit_claim(claim, contained) for claim in validated_data['claims']]
+        out = []
+        for claim in validated_data['claims']:
+            existing_claim = Claim.objects.filter(uuid=claim['uuid']).first()
+            if existing_claim:
+                # TODO: Implement overriding data
+                logger.warning(
+                    F"Claim {claim['uuid']} was already sent for evaluation. "
+                    F"It's definition will not be updated.")
+                out.append(existing_claim)
+            else:
+                out.append(self._submit_claim(claim, contained))
+        return out
 
     def _create_or_update_contained(self, initial_data):
         if initial_data['resourceType'] == 'Bundle':
@@ -77,7 +92,6 @@ class ClaimBundleEvaluationSerializer(ClaimSerializer):
 
     def _submit_claim(self, claim, contained):
         # If there was predefined UUID use it instead of new one
-        # TODO: What behaviour should be used when claim with given uuid exists
         uuid = claim.get('uuid') or None
         new_claim = self._create_claim_from_validated_data(claim, contained)
         if uuid:

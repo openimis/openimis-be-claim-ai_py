@@ -6,7 +6,7 @@ from claim_ai.evaluation.converters import BundleConverter
 from claim_ai.evaluation.converters.r4_fhir_resources.fhir_response_builders import ClaimResponseBuilderFactory
 from claim_ai.evaluation.converters.r4_fhir_resources.fhir_response_builders.base_builders.bundle_builders import \
     ClaimBundleEvaluationClaimResponseBundleBuilder
-from claim_ai.evaluation.input_models.stored_input_model import ClaimBundleEvaluationAiInputModel
+from claim_ai.evaluation.input_models.stored_input_model import ClaimBundleEvaluationAiInputModel, logger
 from claim_ai.evaluation.predictor import AiPredictor
 from claim_ai.evaluation.preprocessors.v2_preprocessor import AiInputV2Preprocessor
 from claim_ai.models import ClaimBundleEvaluation, ClaimProvisionEvaluationResult
@@ -59,13 +59,17 @@ class ClaimBundleEvaluator:
         for evaluation in prediction.to_dict(orient="records"):
             type_ = cls._model_from_type(evaluation['ProvisionType'])
             obj = type_.objects.get(id=evaluation['ProvisionID'])
-            prediction = evaluation['prediction']
+            v = evaluation['prediction']
 
-            provision_evaluation = relevant_claim_provision_evaluation_results \
-                .get(content_type=ContentType.objects.get_for_model(type_).id, claim_provision=obj.id)
-
-            provision_evaluation.evaluation = prediction
-            provision_evaluation.save()
+            try:
+                provision_evaluation = relevant_claim_provision_evaluation_results \
+                    .get(content_type=ContentType.objects.get_for_model(type_).id, claim_provision=obj.id)
+                provision_evaluation.evaluation = v
+                provision_evaluation.save()
+            except ClaimProvisionEvaluationResult.DoesNotExist as e:
+                logger.warning(
+                    F"Failed to match item adjudication (obj_id, prediction, claim, evaluation_hash) "
+                    F"{(obj, v, obj.claim, claim_bundle_evaluation)} with bundle.")
 
         claim_bundle_evaluation.status = ClaimBundleEvaluation.BundleEvaluationStatus.FINISHED
         user = claim_bundle_evaluation.user_created

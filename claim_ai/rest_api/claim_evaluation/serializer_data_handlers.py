@@ -1,3 +1,4 @@
+import logging
 from functools import lru_cache
 
 from fhir.resources.bundle import Bundle
@@ -59,10 +60,15 @@ class RequestToInternalValueHandler:
             return {'claims': [self._create_claim_from_entry(data)], 'bundle_id': self._get_clam_id(data)}
 
     def _claims_from_bundle(self, bundle):
-        out = []
-        for next_entry in bundle['entry']:
-            out.append(self._create_claim_from_entry(next_entry['resource']))
-        return out
+        try:
+            out = []
+            for next_entry in bundle['entry']:
+                out.append(self._create_claim_from_entry(next_entry['resource']))
+            return out
+        except Exception as e:
+            import traceback
+            logging.debug(traceback.format_exc())
+            raise e
 
     def _create_claim_from_entry(self, next_entry):
         # Transform to imis using default converter and parse to dict.

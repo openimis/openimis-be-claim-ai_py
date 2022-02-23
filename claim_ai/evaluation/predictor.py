@@ -15,10 +15,9 @@ class AiPredictor:
 
     def evaluate_bundle(self, input_bundle):
         index, clean_input = self.preprocessor.preprocess(input_bundle)
-        provision_identifiers = input_bundle[['ProvisionID', 'ProvisionType']]
+        input_bundle = input_bundle.reset_index()
+        provision_identifiers = input_bundle[index][['ProvisionID', 'ProvisionType']]
         prediction = self.predict(clean_input)
-        # Drop index is required by identifiers as order is different.
-        provision_identifiers = provision_identifiers.reset_index(drop=True)[index]
         provision_identifiers['prediction'] = prediction
         return provision_identifiers
 
