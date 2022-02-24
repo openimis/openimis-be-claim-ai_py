@@ -5,6 +5,7 @@ from rest_framework.generics import get_object_or_404
 from api_fhir_r4.converters import ClaimResponseConverter
 from api_fhir_r4.serializers import ClaimSerializer
 from claim.models import Claim
+from claim_ai.models import ClaimBundleEvaluation
 from claim_ai.rest_api.claim_evaluation.claim_bundle_evaluation_manager import ClaimBundleEvaluationManager
 from claim_ai.rest_api.claim_evaluation.serializer_data_handlers import ResponseHandler, RequestToInternalValueHandler
 
@@ -37,7 +38,9 @@ class ClaimBundleEvaluationSerializer(ClaimSerializer):
         from_contained = self._create_or_update_contained(self.initial_data)
         imis_claims = self._imis_claims_from_validated_data(validated_data, from_contained)
         evaluation_bundle_hash = validated_data.get('bundle_id')
-        evaluation_info = self._add_claims_for_evaluation_query(imis_claims, evaluation_bundle_hash)
+        evaluation_data = self.evaluation_bundle_manager\
+            .create_idle_evaluation_bundle(imis_claims, evaluation_bundle_hash)
+        evaluation_info = self._add_claims_for_evaluation_query(evaluation_data)
         return evaluation_info
 
     def create_claim_response(self, claim_code):
@@ -99,10 +102,7 @@ class ClaimBundleEvaluationSerializer(ClaimSerializer):
             new_claim.save()
         return new_claim
 
-    def _add_claims_for_evaluation_query(self, imis_claims, evaluation_bundle_hash):
-        evaluation_data = self.evaluation_bundle_manager \
-            .create_idle_evaluation_bundle(imis_claims, evaluation_bundle_hash)
-
+    def _add_claims_for_evaluation_query(self, evaluation_data: ClaimBundleEvaluation):
         if not self._wait:
             self.evaluation_bundle_manager.query_claims_for_evaluation(evaluation_data)
             return evaluation_data

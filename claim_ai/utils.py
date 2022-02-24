@@ -2,12 +2,15 @@ import os
 import pickle
 from pathlib import Path
 
+from django.conf import settings
 
-def load_from_module_file(path, load_func=pickle.load):
+
+def load_from_assembly_file(path, load_func=pickle.load):
     isabs = os.path.isabs(path)
     if not isabs:
-        abs_path = Path(__file__).absolute().parent.parent  # path to claim_ai module folder
-        path = F'{abs_path}/{path}'
+        # openimis-be_py
+        base = Path(settings.BASE_DIR).parent
+        path = F'{base}/{path}'
 
     with open(path, 'rb') as f:
         return load_func(f)

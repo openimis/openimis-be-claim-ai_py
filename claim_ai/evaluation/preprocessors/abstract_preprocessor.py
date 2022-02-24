@@ -4,7 +4,7 @@ from typing import Tuple
 import pandas
 
 from claim_ai.apps import ClaimAiConfig
-from claim_ai.utils import load_from_module_file
+from claim_ai.utils import load_from_assembly_file
 
 
 class AbstractAiInputDataFramePreprocessor(ABC):
@@ -36,10 +36,10 @@ class AbstractAiInputDataFramePreprocessor(ABC):
         return index, clean_input
 
     def _load_encoder(self):
-        return load_from_module_file(ClaimAiConfig.ai_encoder_file)
+        return load_from_assembly_file(ClaimAiConfig.ai_encoder_file)
 
     def _load_scaler(self):
-        return load_from_module_file(ClaimAiConfig.ai_scaler_file)
+        return load_from_assembly_file(ClaimAiConfig.ai_scaler_file)
 
     @abstractmethod
     def sanity_check(self, input_bundle: pandas.DataFrame) -> Tuple[pandas.Series, pandas.DataFrame]:

@@ -3,6 +3,7 @@ import logging
 import os
 
 from django.apps import AppConfig
+from django.conf import settings
 from django.utils.autoreload import autoreload_started
 
 from pathlib import Path
@@ -27,20 +28,8 @@ DEFAULT_CONFIG = {
     'delete_evaluation_perms': ['111004'],
 }
 
-
-def get_module_config_path():
-    abs_path = Path(__file__).absolute().parent.parent
-    return F'{abs_path}/module_config.json'
-
-
-def config_autoreloader(sender, **kwargs):
-    sender.watch_file(get_module_config_path())
-
-
 if os.environ.get('NO_DATABASE_ENGINE', False) or os.environ.get('NO_DATABASE', False):
-    path = get_module_config_path()
-    with open(path) as json_file:
-        DEFAULT_CONFIG = json.load(json_file)
+    logger.warning("NO_DATABASE_ENGINE for Claim AI module is deprecated. Config from database will be used.")
 
 
 class ClaimAiConfig(AppConfig):
@@ -68,14 +57,7 @@ class ClaimAiConfig(AppConfig):
     def ready(self):
         from core.models import ModuleConfiguration
         try:
-            if os.environ.get('NO_DATABASE_ENGINE', False) or os.environ.get('NO_DATABASE', False): 
-                autoreload_started.connect(config_autoreloader)
-                path = get_module_config_path()
-                with open(path) as json_file:
-                    cfg = json.load(json_file)
-            else:
-                cfg = ModuleConfiguration.get_or_default(MODULE_NAME, DEFAULT_CONFIG)
-
+            cfg = ModuleConfiguration.get_or_default(MODULE_NAME, DEFAULT_CONFIG)
             self._configure_perms(cfg)
             self._update_fhir_api_rule_engine_validation()
         except Exception as e:

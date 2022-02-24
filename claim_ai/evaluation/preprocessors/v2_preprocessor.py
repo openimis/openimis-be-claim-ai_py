@@ -74,7 +74,9 @@ class AiInputV2Preprocessor(AbstractAiInputDataFramePreprocessor):
             'ICDGenderProba', 'ItemGenderProba',
             'ICDAge_q', 'ItemAge_q', 'DiffPrice'
         ]
-        index = result_df['New'] == 'new'
+        index = result_df['New'] != 'old'
+        df_new = result_df[index].copy()
+        df_new.sort_values(by=['New'], ascending=True, inplace=True)
         df_new = result_df.loc[index, selected_cols]
         return index, df_new
 
