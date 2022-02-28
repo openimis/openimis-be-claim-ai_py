@@ -186,7 +186,7 @@ class ClaimBundleAPITests(ClaimAPIContainedTestBaseMixin, GenericFhirAPITestMixi
 
     @classmethod
     def mocked_predict(cls, input_):
-        return [0, 1]
+        return [1, 0]
 
     @classmethod
     def mocked_encoder(cls, df_categorical):
