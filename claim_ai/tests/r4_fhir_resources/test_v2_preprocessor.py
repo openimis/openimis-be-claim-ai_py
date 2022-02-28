@@ -49,7 +49,7 @@ class TestAiEvaluation(testcases.TestCase):
             }, {
                 'ProvisionID': 9,
                 'ProvisionType': 'ActivityDefinition',
-                'ItemID': 'AAAA29BA-3F4E-4E6F-B55C-23A488A10000',
+                'ItemUUID': 'AAAA29BA-3F4E-4E6F-B55C-23A488A10000',
                 'HFUUID': "6D0EEA8C-62EB-11EA-94D6-C36229A16C2F",
                 'LocationId': 2,
                 'ICDCode': 'ICD00I',
@@ -111,7 +111,7 @@ class TestAiEvaluation(testcases.TestCase):
             }, {
                 'ProvisionID': 7,
                 'ProvisionType': 'ActivityDefinition',
-                'ItemID': 'AAAA29BA-3F4E-4E6F-B55C-23A488A10000',
+                'ItemUUID': 'AAAA29BA-3F4E-4E6F-B55C-23A488A10000',
                 'HFUUID': "6D0EEA8C-62EB-11EA-94D6-C36229A16C2F",
                 'LocationId': 2,
                 'ICDCode': 'ICD00V',
@@ -142,7 +142,6 @@ class TestAiEvaluation(testcases.TestCase):
             }
         ])
 
-    @skip("Failing due to payload, e2e testsing is working")
     @mock.patch("claim_ai.evaluation.preprocessors.v2_preprocessor.AbstractAiInputDataFramePreprocessor.encoder", new_callable=PropertyMock)
     @mock.patch("claim_ai.evaluation.preprocessors.v2_preprocessor.AbstractAiInputDataFramePreprocessor.scaler", new_callable=PropertyMock)
     def test_preprocessor(self, mocked_scaler, mocked_encoder):
@@ -160,7 +159,6 @@ class TestAiEvaluation(testcases.TestCase):
         self.assertEqual(len(index), 4)
         self.assertIsNotNone(preprocessed_df)
 
-    @skip("Failing due to payload, e2e testsing is working")
     @mock.patch("claim_ai.evaluation.preprocessors.v2_preprocessor.AbstractAiInputDataFramePreprocessor.encoder", new_callable=PropertyMock)
     @mock.patch("claim_ai.evaluation.preprocessors.v2_preprocessor.AbstractAiInputDataFramePreprocessor.scaler", new_callable=PropertyMock)
     @mock.patch("claim_ai.evaluation.predictor.AiPredictor.model", new_callable=PropertyMock)
