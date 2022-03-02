@@ -15,7 +15,8 @@ class AiPredictor:
 
     def evaluate_bundle(self, input_bundle):
         index, clean_input = self.preprocessor.preprocess(input_bundle.copy())
-        input_bundle = input_bundle.reset_index()
+        # Make sure size is equal to preprocessed batch
+        input_bundle = input_bundle.reset_index()[input_bundle['VisitType'].notna()]
         provision_identifiers = input_bundle[input_bundle.New == 'new'][['ProvisionID', 'ProvisionType']]
         prediction = self.predict(clean_input)
         provision_identifiers['prediction'] = prediction

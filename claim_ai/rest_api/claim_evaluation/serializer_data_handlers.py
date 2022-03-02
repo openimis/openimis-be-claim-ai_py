@@ -30,7 +30,7 @@ class ResponseHandler:
             SingleClaimEvaluationResult: lambda obj: self._build_claim_response(obj)
         }
 
-    def _build_bundle_response(self, obj):
+    def _build_bundle_response(self, obj: ClaimBundleEvaluation):
         converter = ClaimBundleEvaluationClaimResponseBundleBuilder(ClaimResponseBuilderFactory())
         response = converter.build_fhir_bundle(obj, None)
         response.identifier = self.__build_bundle_identifier(obj)
