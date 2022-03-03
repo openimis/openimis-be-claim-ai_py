@@ -1,6 +1,9 @@
 import itertools
 import logging
 from abc import ABC, abstractmethod
+from collections import defaultdict
+
+from gevent.pool import Pool
 
 from typing import List, Tuple, TypeVar, Iterable, Generic, Any
 
@@ -94,6 +97,15 @@ class EvaluationResultClaimResponseBundleBuilder(
 class ClaimBundleEvaluationClaimResponseBundleBuilder(
     BaseClaimResponseBundleBuilder[ClaimBundleEvaluation, Any, SingleClaimEvaluationResult, Any, str]
 ):
+    def _build_entries_from_input(self, valid_claims_output: V_IN, invalid_valid_claims: IV_IN):
+        pool = Pool(32)
+        resources = []
+        resources.extend(
+            pool.imap(self._build_valid_input, self._group_valid_input(valid_claims_output))
+        )
+
+        return resources
+
     def _get_resource_url_identifier(self, input_element: SingleClaimEvaluationResult):
         return input_element.claim.uuid
 
@@ -104,3 +116,10 @@ class ClaimBundleEvaluationClaimResponseBundleBuilder(
     def _group_invalid_input(self, valid_claims_output:  List[Tuple[dict, str]]) \
             -> Iterable[Tuple[SingleClaimEvaluationResult, str]]:
         return []
+
+    def _build_valid_input(self, grouped_element):
+        claim, claim_items = grouped_element
+        return {
+                'fullUrl': self._build_resource_url(claim),
+                'resource': self._build_valid_entry(claim, list(claim_items))
+            }

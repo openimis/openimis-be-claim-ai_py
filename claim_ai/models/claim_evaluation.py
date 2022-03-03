@@ -1,4 +1,6 @@
+import itertools
 import uuid
+from gevent.pool import Pool
 
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
@@ -55,22 +57,29 @@ class ClaimProvisionEvaluationResult(models.Model):
     def build_base_claim_provisions_evaluation(
             cls, claim_evaluation_information: SingleClaimEvaluationResult, save: bool = False):
         claim = claim_evaluation_information.claim
-        out = []
-        for item in claim.items.filter(validity_to__isnull=True).all():
-            out.append(cls.__build_evaluation_result(ClaimItem, item, claim_evaluation_information))
+        items = claim.items.filter(validity_to__isnull=True).all()
+        services = claim.services.filter(validity_to__isnull=True).all()
 
-        for service in claim.services.filter(validity_to__isnull=True).all():
-            out.append(cls.__build_evaluation_result(ClaimService, service, claim_evaluation_information))
+        item_ct = ContentType.objects.get_for_model(ClaimItem)
+        service_ct = ContentType.objects.get_for_model(ClaimService)
+        pool = Pool(5)
+        result = pool.imap(cls._build_evaluation_result,
+                           [(item_ct, item, claim_evaluation_information) for item in items])
+        result2 = pool.imap(cls._build_evaluation_result,
+                            [(service_ct, service, claim_evaluation_information) for service in services])
 
+        out = itertools.chain(result, result2)
+        #x = [a for a in out]
         if save:
             [x.save() for x in out]
 
         return out
 
     @classmethod
-    def __build_evaluation_result(cls, provision_type, item, claim_evaluation_info):
+    def _build_evaluation_result(cls, input_):
+        provision_type, item, claim_evaluation_info = input_
         return ClaimProvisionEvaluationResult(
-            content_type=ContentType.objects.get_for_model(provision_type),
+            content_type=provision_type,
             claim_provision=item.pk,
             claim_evaluation=claim_evaluation_info
         )
