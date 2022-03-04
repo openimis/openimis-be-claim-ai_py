@@ -34,13 +34,6 @@ class ClaimBundleEvaluator:
         input_ = ClaimBundleEvaluationAiInputModel(claim_bundle_evaluation)
         return input_.to_representation()
 
-    # @classmethod
-    # def _model_from_type(cls, param):
-    #     type_ = cls._PROVISION_TYPES.get(param)
-    #     if not type_:
-    #         raise ValueError(F"Invalid ProvisionType: {param}. Accepted types are: {cls._PROVISION_TYPES.keys()}")
-    #     return type_
-
     @classmethod
     def _content_type_from_provision_type(cls, param):
         provision_types = {
