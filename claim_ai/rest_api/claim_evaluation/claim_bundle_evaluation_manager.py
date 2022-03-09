@@ -1,6 +1,8 @@
 import logging
 
-from django.db import transaction
+import time
+
+from django.db import transaction, connection
 from kombu.exceptions import OperationalError
 
 from claim_ai.evaluation.stored_resource_evaluation import ClaimBundleEvaluator
@@ -32,7 +34,7 @@ class ClaimBundleEvaluationManager:
         return ClaimBundleEvaluator.evaluate_bundle(claim_evaluation_bundle)
 
     @transaction.atomic
-    def _create_evaluation_entries_in_db(self, claims, evaluation_bundle_hash=None) ->  ClaimBundleEvaluation:
+    def _create_evaluation_entries_in_db(self, claims, evaluation_bundle_hash=None) -> ClaimBundleEvaluation:
         kwargs = {'evaluation_hash': evaluation_bundle_hash} if evaluation_bundle_hash else {}
         bundle_eval_model = ClaimBundleEvaluation(**kwargs)
         bundle_eval_model.save(username=self.user_manager.username)
@@ -46,7 +48,6 @@ class ClaimBundleEvaluationManager:
     def _create_empty_claim_evaluation_result(self, claim, bundle_eval_model):
         claim_evaluation_information = SingleClaimEvaluationResult(
             claim=claim, bundle_evaluation=bundle_eval_model)
-
         claim_evaluation_information.save()
         ClaimProvisionEvaluationResult.build_base_claim_provisions_evaluation(
             claim_evaluation_information, save=True)

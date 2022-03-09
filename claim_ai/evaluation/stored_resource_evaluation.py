@@ -16,10 +16,6 @@ class ClaimBundleEvaluator:
     fhir_converter = ClaimBundleEvaluationClaimResponseBundleBuilder(ClaimResponseBuilderFactory())
 
     ai_model = AiPredictor(AiInputV2Preprocessor())
-    _PROVISION_TYPES = {
-        'ActivityDefinition': ClaimService,
-        'Medication': ClaimItem
-    }
 
     @classmethod
     def evaluate_bundle(cls, claim_bundle_evaluation: ClaimBundleEvaluation):
@@ -39,37 +35,42 @@ class ClaimBundleEvaluator:
         return input_.to_representation()
 
     @classmethod
-    def _model_from_type(cls, param):
-        type_ = cls._PROVISION_TYPES.get(param)
+    def _content_type_from_provision_type(cls, param):
+        provision_types = {
+            'ActivityDefinition': ContentType.objects.get_for_model(ClaimService).id,
+            'Medication': ContentType.objects.get_for_model(ClaimItem).id,
+        }
+        type_ = provision_types.get(param)
         if not type_:
-            raise ValueError(F"Invalid ProvisionType: {param}. Accepted types are: {cls._PROVISION_TYPES.keys()}")
+            raise ValueError(F"Invalid ProvisionType: {param}. Accepted types are: {provision_types.keys()}")
         return type_
 
     @classmethod
     @transaction.atomic
     def _update_evaluation_with_prediction(cls, claim_bundle_evaluation, prediction):
         evaluated_claims = claim_bundle_evaluation.claims.all()
-        relevant_claim_provision_evaluation_results = \
-            ClaimProvisionEvaluationResult \
-                .objects \
-                .filter(claim_evaluation__in=evaluated_claims) \
-                .all() \
-                .prefetch_related('claim_evaluation')
+        relevant_claim_provision_evaluation_results = list(
+            ClaimProvisionEvaluationResult.objects.filter(claim_evaluation__in=evaluated_claims).all()
+            .prefetch_related('claim_evaluation')
+        )
+        saved_evaluations_results = \
+            {(x.content_type.id, x.claim_provision): x for x in relevant_claim_provision_evaluation_results}
 
+        provisions = []
         for evaluation in prediction.to_dict(orient="records"):
-            type_ = cls._model_from_type(evaluation['ProvisionType'])
-            obj = type_.objects.get(id=evaluation['ProvisionID'])
-            v = evaluation['prediction']
+            type_id = cls._content_type_from_provision_type(evaluation['ProvisionType'])
+            key, value = (type_id, evaluation['ProvisionID']), evaluation['prediction']
 
             try:
-                provision_evaluation = relevant_claim_provision_evaluation_results \
-                    .get(content_type=ContentType.objects.get_for_model(type_).id, claim_provision=obj.id)
-                provision_evaluation.evaluation = v
-                provision_evaluation.save()
-            except ClaimProvisionEvaluationResult.DoesNotExist as e:
-                logger.warning(
-                    F"Failed to match item adjudication (obj_id, prediction, claim, evaluation_hash) "
-                    F"{(obj, v, obj.claim, claim_bundle_evaluation)} with bundle.")
+                provision_evaluation = saved_evaluations_results[key]
+                provision_evaluation.evaluation = value
+                provisions.append(provision_evaluation)
+            except KeyError as e:
+                logger.error(
+                    F"Failed to match item adjudication {key} (provision, provision_type) "
+                    F"to bundle with evaluation_hash {claim_bundle_evaluation}.")
+
+        ClaimProvisionEvaluationResult.objects.bulk_update(provisions, ['evaluation'])
 
         claim_bundle_evaluation.status = ClaimBundleEvaluation.BundleEvaluationStatus.FINISHED
         user = claim_bundle_evaluation.user_created

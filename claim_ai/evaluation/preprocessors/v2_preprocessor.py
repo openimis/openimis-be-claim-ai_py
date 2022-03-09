@@ -50,14 +50,14 @@ class AiInputV2Preprocessor(AbstractAiInputDataFramePreprocessor):
         # exclusion_cnd6 = (df_items['RejectionReason'] == self.RR_RbyMO) & (df_items['PriceValuated'] > 0)
 
         # Check if ClaimAdminID has the same HFUUID as the ClaimHFUUID:
-        # exclusion_cnd7 = (df_items['HFUUID']!=df_items['HfUUID'])
+        exclusion_cnd7 = (df_items['HFUUID'] != df_items['HfUUID'])
 
-        conditions = [exclusion_cnd5, ~(exclusion_cnd5)]
-        values = ['Condition5', 'Clean data']
+        conditions = [exclusion_cnd5, exclusion_cnd7, ~(exclusion_cnd5 & exclusion_cnd7)]
+        values = ['Condition5', 'Condition7', 'Clean data']
         df_items['SanityCheck'] = np.select(conditions, values)
         result_df = self._create_aggregated_fields(df_items)
         selected_cols = [
-            'ItemUUID', 'HFUUID', 'LocationId', 'ICDCode', 'ICD1Code',
+            'ItemUUID', 'LocationId', 'ICDCode', 'ICD1Code',
             'Age', 'Gender', 'Poverty',
             'QuantityProvided', 'TotalPrice', 'DiffTotalPrice',
             'Duration', 'DurationClaimed',
@@ -69,10 +69,7 @@ class AiInputV2Preprocessor(AbstractAiInputDataFramePreprocessor):
             'ItemsPerWeek', 'AmountPerWeek',
             'ItemsPerMonth', 'AmountPerMonth',
             'ItemsPerQuarter', 'AmountPerQuarter',
-            'ItemsPerYear', 'AmountPerYear',
-            'ICDItemProba', 'ICDTotalAmountAsked',
-            'ICDGenderProba', 'ItemGenderProba',
-            'ICDAge_q', 'ItemAge_q', 'DiffPrice'
+            'ItemsPerYear', 'AmountPerYear', 'DiffPrice'
         ]
         index = result_df['New'] != 'old'
         df_new = result_df[index].copy()
@@ -81,7 +78,7 @@ class AiInputV2Preprocessor(AbstractAiInputDataFramePreprocessor):
         return index, df_new
 
     def convert_variables(self, df_items: pd.DataFrame) -> pd.DataFrame:
-        cat_features = ['ItemUUID', 'HFUUID', 'ItemLevel', 'VisitType', 'HFLevel', 'Gender',
+        cat_features = ['ItemUUID', 'ItemLevel', 'VisitType', 'HFLevel', 'Gender',
                         'HFCareType', 'ICDCode', 'ICD1Code']
         df_data_encoded = df_items.copy()
         categorical = df_data_encoded[cat_features]
@@ -89,7 +86,7 @@ class AiInputV2Preprocessor(AbstractAiInputDataFramePreprocessor):
         return df_data_encoded
 
     def normalize_input(self, df_items: pd.DataFrame) -> pd.DataFrame:
-        selected_cols = ['ItemUUID', 'HFUUID', 'LocationId', 'ICDCode', 'ICD1Code',
+        selected_cols = ['ItemUUID', 'LocationId', 'ICDCode', 'ICD1Code',
                          'Age', 'Gender', 'Poverty',
                          'QuantityProvided', 'TotalPrice', 'DiffTotalPrice',
                          'Duration', 'DurationClaimed',
@@ -101,10 +98,7 @@ class AiInputV2Preprocessor(AbstractAiInputDataFramePreprocessor):
                          'ItemsPerWeek', 'AmountPerWeek',
                          'ItemsPerMonth', 'AmountPerMonth',
                          'ItemsPerQuarter', 'AmountPerQuarter',
-                         'ItemsPerYear', 'AmountPerYear',
-                         'ICDItemProba', 'ICDTotalAmountAsked',
-                         'ICDGenderProba', 'ItemGenderProba',
-                         'ICDAge_q', 'ItemAge_q', 'DiffPrice']
+                         'ItemsPerYear', 'AmountPerYear', 'DiffPrice']
 
         return pd.DataFrame(
             data=self.scaler.transform(df_items[selected_cols]), columns=selected_cols
@@ -203,37 +197,6 @@ class AiInputV2Preprocessor(AbstractAiInputDataFramePreprocessor):
         feature_name = ['InsureeUUID', 'ItemsPerDay', 'AmountPerDay']
         new_feature = ['ItemsPerYear', 'AmountPerYear']
         result_df = self.aggregation_function(temp, result_df, '365D', feature_name, new_feature, workers)
-
-        # Aggregation related to HFUUID
-        result_df['ICDTotalAmountAsked'] = result_df.groupby(['HFUUID', 'ICDCode'])['TotalPriceAsked'].transform('sum')
-        keys = ['HFUUID', 'ICDCode', 'ItemUUID']
-        result_df['ICDItemCount'] = result_df.groupby(keys)['ItemUUID'].transform('count')
-        result_df['ICDCount'] = result_df.groupby(['HFUUID', 'ICDCode'])['ICDCode'].transform('count')
-        result_df['ICDItemProba'] = result_df['ICDItemCount'] / result_df['ICDCount']
-        # Items related to HF|ICD |Gender and HF|Item |Gender
-        keys = ['HFUUID', 'ICDCode', 'Gender']
-        result_df['ICDGenderCount'] = result_df.groupby(keys)['Gender'].transform('count')
-        result_df['ICDGenderProba'] = result_df['ICDGenderCount'] / result_df['ICDCount']
-
-        keys = ['HFUUID', 'ItemUUID', 'Gender']
-        result_df['ItemGenderCount'] = result_df.groupby(keys)['Gender'].transform('count')
-        keys = ['HFUUID', 'ItemUUID']
-        result_df['ItemCount'] = result_df.groupby(keys)['ItemUUID'].transform('count')
-        result_df['ItemGenderProba'] = result_df['ItemGenderCount'] / result_df['ItemCount']
-        # Items related to HF|ICD |Age and HF|Item |Age
-        keys = ['HFUUID', 'ICDCode', 'Age']
-        result_df['ICDAge_q1'] = result_df[keys].groupby(['HFUUID', 'ICDCode']).transform(lambda x: x.quantile(0.10))
-        result_df['ICDAge_q2'] = result_df[keys].groupby(['HFUUID', 'ICDCode']).transform(lambda x: x.quantile(0.90))
-        index_age = (result_df['Age'] >= result_df['ICDAge_q1']) & (result_df['Age'] <= result_df['ICDAge_q2'])
-        result_df.loc[index_age, 'ICDAge_q'] = 0
-        result_df.loc[~index_age, 'ICDAge_q'] = 1
-
-        keys = ['HFUUID', 'ItemUUID', 'Age']
-        result_df['ItemAge_q1'] = result_df[keys].groupby(['HFUUID', 'ItemUUID']).transform(lambda x: x.quantile(0.10))
-        result_df['ItemAge_q2'] = result_df[keys].groupby(['HFUUID', 'ItemUUID']).transform(lambda x: x.quantile(0.90))
-        index_age = (result_df['Age'] >= result_df['ItemAge_q1']) & (result_df['Age'] <= result_df['ItemAge_q2'])
-        result_df.loc[index_age, 'ItemAge_q'] = 0
-        result_df.loc[~index_age, 'ItemAge_q'] = 1
         return result_df
 
     @classmethod
