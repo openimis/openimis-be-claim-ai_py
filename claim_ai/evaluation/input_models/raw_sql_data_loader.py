@@ -144,8 +144,6 @@ select distinct
 	left join tblClaimAdmin tca on tca.ClaimAdminId = tc.ClaimAdminId 
 where tci.ValidityTo is null and (
 	  ins.InsureeUUID in (select InsureeUUID from #claimsForEvaluation where ProvisionType = 'Medication') 
-	or 
-	  th.HfUUID in (select HFUUID from #claimsForEvaluation where ProvisionType = 'Medication')
 ) and tci.ClaimItemID not in (select ProvisionID from #claimsForEvaluation where ProvisionType = 'Medication'))x;
 
 
@@ -194,8 +192,6 @@ select distinct
 	left join tblClaimAdmin tca on tca.ClaimAdminId = tc.ClaimAdminId
 where tci.ValidityTo is null and (
 	  ins.InsureeUUID in (select InsureeUUID from #claimsForEvaluation where ProvisionType = 'ActivityDefinition') 
-	or 
-	  th.HfUUID in (select HFUUID from #claimsForEvaluation)
 ) and tci.ClaimServiceID not in (select ProvisionID from #claimsForEvaluation where ProvisionType = 'ActivityDefinition'))x;
 
 """
