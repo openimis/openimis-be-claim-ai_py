@@ -1,15 +1,18 @@
 import numpy
 import pandas
 
-from django.db import connection
+from django.db import connection, ProgrammingError
+
 from core import datetime
 
 
 class RawSQLDataFrameLoader:
-    __BASE_SQL = """With new_items as (
-		select distinct 
+    __BASE_SQL = """drop table if exists #claimsForEvaluation;
+
+select * into #claimsForEvaluation from 
+(select distinct 
 			tci.ClaimItemID as 'ProvisionID', 
-			'Medication' as 'ProvisionType',   
+			Cast('Medication' as VARCHAR(50)) as 'ProvisionType',   
 			ti.ItemUUID as 'ItemUUID',
 			th.HfUUID as 'HFUUID', 
 			tl.LocationId as 'LocationId',
@@ -49,9 +52,10 @@ class RawSQLDataFrameLoader:
 		left join tblFamilies tf on ins.FamilyID = tf.FamilyID
 		left join tblGender tg on tg.Code = ins.Gender  
 		left join tblClaimAdmin tca on tca.ClaimAdminId = tc.ClaimAdminId 
-		where tci.ClaimID in (__CLAIM_ID_PLACEHOLDER__) and tci.ValidityTo is null
-	), new_services as (
-	select 
+		where tci.ClaimID in (__CLAIM_ID_PLACEHOLDER__) and tci.ValidityTo is null)x;
+	
+insert into #claimsForEvaluation select * from (
+select 
 		tci.ClaimServiceID  as 'ProvisionID', 
 		'ActivityDefinition' as 'ProvisionType',   
 		ti.ServiceUUID  as 'ItemUUID',
@@ -93,11 +97,10 @@ class RawSQLDataFrameLoader:
 	left join tblFamilies tf on ins.FamilyID = tf.FamilyID
 	left join tblGender tg on tg.Code = ins.Gender  
 	left join tblClaimAdmin tca on tca.ClaimAdminId = tc.ClaimAdminId 
-	where tci.ClaimID in (__CLAIM_ID_PLACEHOLDER__)
-) select * from new_items
-union select * from new_services
-	union
-	select distinct
+	where tci.ClaimID in (__CLAIM_ID_PLACEHOLDER__))x;
+
+insert into #claimsForEvaluation select * from (
+select distinct
 		tci.ClaimItemID as 'ProvisionID', 
 		'Medication' as 'ProvisionType',   
 		ti.ItemUUID as 'ItemUUID',
@@ -123,7 +126,7 @@ union select * from new_services
 		tc.VisitType as 'VisitType',
 		tci.RejectionReason as 'RejectionReason',
 		tci.PriceValuated as 'PriceValuated',
-		(select HfUUID  from tblHF where HfID = tca.HFId) as 'HfUUID',
+		(select HfUUID  from tblHF where HfID = tca.HFId) as 'HfUUID1',
 		tca.ClaimAdminUUID as 'ClaimAdminUUID',
 		ins.InsureeUUID as 'InsureeUUID',
 		tc.ClaimUUID as 'ClaimUUID',
@@ -140,11 +143,13 @@ union select * from new_services
 	left join tblGender tg on tg.Code = ins.Gender  
 	left join tblClaimAdmin tca on tca.ClaimAdminId = tc.ClaimAdminId 
 where tci.ValidityTo is null and (
-	  ins.InsureeUUID in (select InsureeUUID from new_items) 
+	  ins.InsureeUUID in (select InsureeUUID from #claimsForEvaluation where ProvisionType = 'Medication') 
 	or 
-	  th.HfUUID in (select HFUUID from new_items)
-)  and tci.ClaimItemID not in (select ProvisionID from new_items)
-union
+	  th.HfUUID in (select HFUUID from #claimsForEvaluation where ProvisionType = 'Medication')
+) and tci.ClaimItemID not in (select ProvisionID from #claimsForEvaluation where ProvisionType = 'Medication'))x;
+
+
+insert into #claimsForEvaluation select * from (
 select distinct
 		tci.ClaimServiceID  as 'ProvisionID', 
 		'ActivityDefinition' as 'ProvisionType',   
@@ -171,7 +176,7 @@ select distinct
 		tc.VisitType as 'VisitType',
 		tci.RejectionReason as 'RejectionReason',
 		tci.PriceValuated as 'PriceValuated',
-		(select HfUUID  from tblHF where HfID = tca.HFId) as 'HfUUID',
+		(select HfUUID  from tblHF where HfID = tca.HFId) as 'HfUUID1',
 		tca.ClaimAdminUUID as 'ClaimAdminUUID',
 		ins.InsureeUUID as 'InsureeUUID',
 		tc.ClaimUUID as 'ClaimUUID',
@@ -188,20 +193,34 @@ select distinct
 	left join tblGender tg on tg.Code = ins.Gender  
 	left join tblClaimAdmin tca on tca.ClaimAdminId = tc.ClaimAdminId
 where tci.ValidityTo is null and (
-	  ins.InsureeUUID in (select InsureeUUID from new_services) 
+	  ins.InsureeUUID in (select InsureeUUID from #claimsForEvaluation where ProvisionType = 'ActivityDefinition') 
 	or 
-	  th.HfUUID in (select HFUUID from new_services)
-) and tci.ClaimServiceID not in (select ProvisionID from new_services)
-order by New, ProvisionID
+	  th.HfUUID in (select HFUUID from #claimsForEvaluation)
+) and tci.ClaimServiceID not in (select ProvisionID from #claimsForEvaluation where ProvisionType = 'ActivityDefinition'))x;
+
 """
+
+    __SELECT_SQL = """select * from #claimsForEvaluation;"""
 
     @classmethod
     def build_dataframe_for_claim_ids(cls, claim_ids):
         s = ", ".join(map(lambda x: "%s", claim_ids))
         y = cls.__BASE_SQL.replace("__CLAIM_ID_PLACEHOLDER__", s)
         query = y % (*claim_ids, *claim_ids)
-        df = pandas.read_sql_query(query, connection)
+
+        cursor = connection.cursor()
+        cursor.execute(query)
+        while cursor.nextset():
+            try:
+                cursor.fetchall()
+            except ProgrammingError as e:
+                # Sql was not a query but it's required to call fetchall(), in other case read_sql fails
+                pass
+            continue
+
+        df = pandas.read_sql_query(cls.__SELECT_SQL, con=connection)
         df.rename(columns={'HfUUID1': 'HfUUID'}, inplace=True)
+        cursor.close()
         df['DateClaimed'] = df['DateClaimed'].map(lambda x: datetime.date(x.year, x.month, x.day))
         df['DateFrom'] = df['DateFrom'].map(lambda x: datetime.date(x.year, x.month, x.day))
         df['DateTo'] = df['DateTo'].map(lambda x: datetime.date(x.year, x.month, x.day) if x else None)
