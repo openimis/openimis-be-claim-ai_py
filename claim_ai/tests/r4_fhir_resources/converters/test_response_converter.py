@@ -1,6 +1,6 @@
 import core
 
-from unittest import TestCase
+from django.test import TestCase
 
 from claim_ai.apps import ClaimAiConfig
 from claim_ai.evaluation.converters import BundleConverter, AiConverter
