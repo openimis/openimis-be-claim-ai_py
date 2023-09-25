@@ -29,7 +29,7 @@ setup(
         'category_encoders',
         'pandas==1.1.4',
         'pandarallel==1.5.5',
-        'gevent==21.12.0'
+        'gevent==23.9.1'
     ],
     classifiers=[
         'Environment :: Web Environment',
